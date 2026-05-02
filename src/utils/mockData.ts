@@ -1,5 +1,5 @@
 export const EXAMPLE_PROMPTS = [
-  'Create a smart temperature and humidity sensor for modern homes',
+  'Create a smart wireless charging pad for modern homes',
   'Design a futuristic sneaker for urban runners',
   'Build a minimal mechanical keyboard for digital nomads',
   'Design a solar-powered backpack for everyday explorers',

@@ -94,10 +94,7 @@ export default function VideoStudio({ videoSystem, onUpdate }: Props) {
               )}
             </div>
 
-            {/* Prompt */}
-            <p className="text-xs text-white/40 leading-relaxed line-clamp-4">
-              {prompt || 'No prompt generated yet.'}
-            </p>
+            {/* Prompt text hidden from user per request */}
 
             {/* Video player or mock thumbnail */}
             {task?.status === 'complete' && (

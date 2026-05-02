@@ -135,9 +135,9 @@ export default function LandingPage() {
         </div>
 
         <div className="hero-el opacity-0 flex items-center gap-4 pt-2">
-          <Link href="/architecture" className="text-xs text-fg-muted hover:text-fg transition-colors underline underline-offset-4">
-            How it works →
-          </Link>
+          <span className="text-xs text-fg-muted">
+            Powered by 8 AI agents working in parallel
+          </span>
         </div>
       </section>
 
@@ -202,12 +202,10 @@ export default function LandingPage() {
           Dive into any section or go straight to the builder and describe your product idea.
         </p>
         <div className="flex flex-wrap gap-3 justify-center">
-          <Link href="/chat"         className="btn-accent">💬&nbsp; Start Ideation</Link>
           <Link href="/builder"      className="btn-ghost">🏗️&nbsp; Builder</Link>
           <Link href="/video"        className="btn-ghost">🎬&nbsp; Video Studio</Link>
           <Link href="/gtm"          className="btn-ghost">🚀&nbsp; GTM + Social</Link>
           <Link href="/summary"      className="btn-ghost">📋&nbsp; Summary</Link>
-          <Link href="/architecture" className="btn-ghost">🔭&nbsp; Architecture</Link>
         </div>
       </section>
 

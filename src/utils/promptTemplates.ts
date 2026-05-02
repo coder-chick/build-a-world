@@ -70,7 +70,8 @@ Return ONLY valid JSON:
 
 export const VISUAL_PROMPT_SYSTEM = `You are an AI art director and product photographer.
 Generate detailed image generation prompts for three product visualisation modes.
-Each prompt must be specific enough to produce a commercial-quality render.`;
+Each prompt must be specific enough to produce a commercial-quality render.
+Crucially, ALWAYS refer to the subject in your prompts as "the product in the provided image". Do not invent product names or specific features that might conflict with the provided image.`;
 
 export const VISUAL_PROMPT_USER = (
   productName: string,
@@ -93,6 +94,9 @@ Return ONLY valid JSON:
 
 export const VIDEO_PROMPT_SYSTEM = `You are a Seedance AI video director.
 Generate cinematic, highly specific video prompts optimised for Seedance 2.0 text-to-video.
+Ensure the hero video ALWAYS places the product in a minimalist studio room.
+Ensure the action video takes the object and puts it in a realistic context.
+Crucially, ALWAYS refer to the subject in your prompts as "the product in the provided image". Do not invent product names or specific features that might conflict with the provided image.
 Each prompt must include: scene, environment, lighting, camera movement, motion, product interaction, emotional tone, duration, loop instruction.`;
 
 export const VIDEO_PROMPT_USER = (productName: string, style: string) => `
