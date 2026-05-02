@@ -35,13 +35,25 @@ export default function VideoStudio({ videoSystem, onUpdate }: Props) {
 
   const handleGenerate = async (type: VideoType) => {
     let prompt = PROMPT_MAP(videoSystem)[type] || (type === 'interpolation' ? 'Smooth interpolation from an exploded parts view to a fully assembled product view. Showcase the engineering and fit of the components.' : '');
-    if (videoSystem.baseImageUrl) {
+    
+    // For standard videos
+    if (type !== 'interpolation' && videoSystem.baseImageUrl) {
       prompt += ' Maintain consistency with the provided image.';
+    } 
+    // For interpolation
+    if (type === 'interpolation' && videoSystem.interpolationStartImageUrl) {
+      prompt += ' Interpolate from the provided start image to the provided end image.';
     }
+
     setGenerating((g) => ({ ...g, [type]: true }));
 
     try {
-      const task: VideoTask = await generateVideo(type, prompt, videoSystem.baseImageUrl, type === 'interpolation' ? videoSystem.endImageUrl : undefined);
+      const task: VideoTask = await generateVideo(
+        type, 
+        prompt, 
+        type === 'interpolation' ? videoSystem.interpolationStartImageUrl : videoSystem.baseImageUrl, 
+        type === 'interpolation' ? videoSystem.interpolationEndImageUrl : undefined
+      );
       onUpdate((currentVs) => {
         const updatedTasks = [
           ...currentVs.videoTasks.filter((t) => t.type !== type),
@@ -207,15 +219,15 @@ export default function VideoStudio({ videoSystem, onUpdate }: Props) {
                 <input
                   type="url"
                   placeholder="Start Image URL (e.g. Exploded View)"
-                  value={videoSystem.baseImageUrl || ''}
-                  onChange={(e) => onUpdate({ ...videoSystem, baseImageUrl: e.target.value })}
+                  value={videoSystem.interpolationStartImageUrl || ''}
+                  onChange={(e) => onUpdate({ ...videoSystem, interpolationStartImageUrl: e.target.value })}
                   className="w-full bg-black/20 border border-white/10 rounded-lg px-4 py-2 text-sm text-white placeholder-white/20 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/50"
                 />
                 <input
                   type="url"
                   placeholder="End Image URL (e.g. Assembled View)"
-                  value={videoSystem.endImageUrl || ''}
-                  onChange={(e) => onUpdate({ ...videoSystem, endImageUrl: e.target.value })}
+                  value={videoSystem.interpolationEndImageUrl || ''}
+                  onChange={(e) => onUpdate({ ...videoSystem, interpolationEndImageUrl: e.target.value })}
                   className="w-full bg-black/20 border border-white/10 rounded-lg px-4 py-2 text-sm text-white placeholder-white/20 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/50"
                 />
               </div>
@@ -278,7 +290,7 @@ export default function VideoStudio({ videoSystem, onUpdate }: Props) {
               {task?.status !== 'complete' && !isLoading && (
                 <button
                   onClick={() => handleGenerate(type)}
-                  disabled={!prompt || !videoSystem.baseImageUrl || !videoSystem.endImageUrl}
+                  disabled={!prompt || !videoSystem.interpolationStartImageUrl || !videoSystem.interpolationEndImageUrl}
                   className="
                     w-full py-2.5 rounded-xl text-sm font-medium
                     bg-accent/10 border border-accent/30 text-accent

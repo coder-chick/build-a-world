@@ -69,7 +69,8 @@ export interface VideoSystem {
   simulated3DTurnaroundPrompt: string;
   interpolationVideoPrompt: string;
   baseImageUrl?: string;
-  endImageUrl?: string;
+  interpolationStartImageUrl?: string;
+  interpolationEndImageUrl?: string;
   videoTasks: VideoTask[];
 }
 
