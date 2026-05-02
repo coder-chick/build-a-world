@@ -53,9 +53,11 @@ export interface VideoTask {
   id: string;
   type: VideoType;
   prompt: string;
+  imageUrl?: string;
   status: VideoStatus;
   url?: string;
   thumbnailUrl?: string;
+  errorMessage?: string;
 }
 
 export interface VideoSystem {
@@ -64,6 +66,7 @@ export interface VideoSystem {
   artisticVideoPrompt: string;
   animatedVideoPrompt: string;
   simulated3DTurnaroundPrompt: string;
+  baseImageUrl?: string;
   videoTasks: VideoTask[];
 }
 
