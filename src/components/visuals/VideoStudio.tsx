@@ -11,7 +11,7 @@ import { generateVideo } from '@/services/seedanceService';
 
 interface Props {
   videoSystem: VideoSystem;
-  onUpdate: (updated: VideoSystem) => void;
+  onUpdate: (updated: VideoSystem | ((prev: VideoSystem) => VideoSystem)) => void;
 }
 
 const VIDEO_CONFIG: { type: VideoType; label: string; emoji: string }[] = [
@@ -40,11 +40,13 @@ export default function VideoStudio({ videoSystem, onUpdate }: Props) {
 
     try {
       const task: VideoTask = await generateVideo(type, prompt, videoSystem.baseImageUrl);
-      const updatedTasks = [
-        ...videoSystem.videoTasks.filter((t) => t.type !== type),
-        task,
-      ];
-      onUpdate({ ...videoSystem, videoTasks: updatedTasks });
+      onUpdate((currentVs) => {
+        const updatedTasks = [
+          ...currentVs.videoTasks.filter((t) => t.type !== type),
+          task,
+        ];
+        return { ...currentVs, videoTasks: updatedTasks };
+      });
     } finally {
       setGenerating((g) => ({ ...g, [type]: false }));
     }

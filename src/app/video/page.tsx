@@ -22,10 +22,11 @@ export default function VideoPage() {
     setLoading(false);
   }, []);
 
-  const handleVideoUpdate = (updated: VideoSystem) => {
+  const handleVideoUpdate = (updated: VideoSystem | ((prev: VideoSystem) => VideoSystem)) => {
     setWorld(prev => {
       if (!prev) return prev;
-      const w = { ...prev, videoSystem: updated };
+      const newVs = typeof updated === 'function' ? updated(prev.videoSystem) : updated;
+      const w = { ...prev, videoSystem: newVs };
       sessionStorage.setItem('baw_world', JSON.stringify(w));
       return w;
     });
@@ -71,7 +72,7 @@ export default function VideoPage() {
                     heroVideoPrompt: 'Cinematic shot of the product in the provided image in a minimalist studio room. Dramatic lighting, slow pan, seamless loop.',
                     actionVideoPrompt: 'Action shot of the product in the provided image being used in a realistic context. Dynamic camera motion.',
                     artisticVideoPrompt: 'Abstract artistic interpretation of the product in the provided image. Neon cyberpunk aesthetics, fast cuts.',
-                    animatedVideoPrompt: 'Stylized 3D animation of the product in the provided image spinning in the center of the frame.',
+                    animatedVideoPrompt: 'Stylized 2D anime animation of the product in the provided image. Vibrant colors, expressive cartoony motion highlights, and dynamic action.',
                     simulated3DTurnaroundPrompt: '',
                     videoTasks: []
                   },
