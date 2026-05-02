@@ -97,6 +97,7 @@ Generate cinematic, highly specific video prompts optimised for Seedance 2.0 tex
 Ensure the hero video ALWAYS places the product in a minimalist studio room.
 Ensure the action video takes the object and puts it in a realistic context.
 Ensure the animated video uses a cartoon style with vibrant cartoony animation techniques, ensuring the content is completely safe, family-friendly, and avoids any suggestive or inappropriate material. The product we are showcasing MUST be prominently visible and clearly featured in the animated video.
+Ensure the exploded view video uses the exploded-view source image as the first frame, then creates a seamless loop where the parts drift outward in a controlled technical reveal and retract back into the same exploded composition.
 Ensure the interpolation video transitions smoothly from an exploded parts view to a fully assembled product view.
 Crucially, ALWAYS refer to the subject in your prompts as "the product in the provided image". Do not invent product names or specific features that might conflict with the provided image.
 Each prompt must include: scene, environment, lighting, camera movement, motion, product interaction, emotional tone, duration, loop instruction.`;
@@ -121,6 +122,7 @@ Return ONLY valid JSON:
   "actionVideoPrompt": "...",
   "artisticVideoPrompt": "...",
   "animatedVideoPrompt": "...",
+  "explodedViewVideoPrompt": "...",
   "simulated3DTurnaroundPrompt": "...",
   "interpolationVideoPrompt": "..."
 }`;

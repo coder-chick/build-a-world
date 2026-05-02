@@ -11,6 +11,7 @@ interface VideoPromptOutput {
   actionVideoPrompt: string;
   artisticVideoPrompt: string;
   animatedVideoPrompt: string;
+  explodedViewVideoPrompt?: string;
   simulated3DTurnaroundPrompt: string;
   interpolationVideoPrompt: string;
 }
@@ -43,6 +44,7 @@ export async function runVideoPromptAgent(
     actionVideoPrompt:            parsed.actionVideoPrompt,
     artisticVideoPrompt:          parsed.artisticVideoPrompt,
     animatedVideoPrompt:          parsed.animatedVideoPrompt,
+    explodedViewVideoPrompt:      parsed.explodedViewVideoPrompt ?? parsed.interpolationVideoPrompt,
     simulated3DTurnaroundPrompt:  parsed.simulated3DTurnaroundPrompt,
     interpolationVideoPrompt:     parsed.interpolationVideoPrompt,
     videoTasks:                   [],

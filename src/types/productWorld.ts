@@ -61,7 +61,7 @@ export interface VisualSystem {
   selectedEnvironment?: string; // EnvironmentPreset.id
 }
 
-export type VideoType = 'hero' | 'action' | 'artistic' | 'animated' | 'interpolation';
+export type VideoType = 'hero' | 'action' | 'artistic' | 'animated' | 'exploded' | 'interpolation';
 export type VideoStatus = 'idle' | 'pending' | 'processing' | 'complete' | 'failed';
 
 export interface VideoTask {
@@ -81,6 +81,7 @@ export interface VideoSystem {
   actionVideoPrompt: string;
   artisticVideoPrompt: string;
   animatedVideoPrompt: string;
+  explodedViewVideoPrompt: string;
   simulated3DTurnaroundPrompt: string;
   interpolationVideoPrompt: string;
   videoTasks: VideoTask[];

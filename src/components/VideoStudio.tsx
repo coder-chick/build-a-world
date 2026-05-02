@@ -10,7 +10,7 @@
 //   • Night/Day toggle per completed video (re-generates with new prompt suffix)
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ProductOverview, VideoSystem, VideoTask, VideoType, VisualSystem } from '@/types/productWorld';
 import { ENVIRONMENTS } from './EnvironmentSelector';
 
@@ -29,6 +29,7 @@ const VIDEO_CONFIG: { type: VideoType; label: string; emoji: string; imageKey: '
   { type: 'action',        label: 'Action Video',        emoji: '⚡', imageKey: 'product',  imageLabel: 'Product shot'  },
   { type: 'artistic',      label: 'Artistic Video',      emoji: '🎨', imageKey: 'knolling', imageLabel: 'Knolling shot' },
   { type: 'animated',      label: 'Animated Video',      emoji: '✨', imageKey: 'exploded', imageLabel: 'Exploded shot' },
+  { type: 'exploded',      label: 'Exploded View Video', emoji: '💥', imageKey: 'exploded', imageLabel: 'Exploded shot' },
   { type: 'interpolation', label: 'Interpolation Video', emoji: '🔄', imageKey: 'exploded', imageLabel: 'Exploded shot' },
 ];
 
@@ -37,6 +38,7 @@ const PROMPT_MAP = (vs: VideoSystem): Record<VideoType, string> => ({
   action:        vs.actionVideoPrompt,
   artistic:      vs.artisticVideoPrompt,
   animated:      vs.animatedVideoPrompt,
+  exploded:      vs.explodedViewVideoPrompt || vs.interpolationVideoPrompt,
   interpolation: vs.interpolationVideoPrompt,
 });
 
@@ -52,8 +54,24 @@ export default function VideoStudio({
   const [generating, setGenerating] = useState<Record<string, boolean>>({});
   // Per-task night/day mode: 'night' | 'day' | undefined (= original)
   const [timeOfDay, setTimeOfDay] = useState<Record<string, 'night' | 'day'>>({});
+  const latestVideoSystemRef = useRef(videoSystem);
+  const autoStartedRef = useRef(false);
+
+  useEffect(() => {
+    latestVideoSystemRef.current = videoSystem;
+  }, [videoSystem]);
 
   const selectedEnv = ENVIRONMENTS.find((e) => e.id === selectedEnvironmentId);
+
+  const updateTask = (task: VideoTask) => {
+    const current = latestVideoSystemRef.current;
+    const updated: VideoSystem = {
+      ...current,
+      videoTasks: [...current.videoTasks.filter((t) => t.type !== task.type), task],
+    };
+    latestVideoSystemRef.current = updated;
+    onUpdate(updated);
+  };
 
   const buildContext = (): string | undefined => {
     if (!productOverview && !originalPrompt && !selectedStyle) return undefined;
@@ -75,6 +93,9 @@ export default function VideoStudio({
     const parts = [basePrompt];
     const context = buildContext();
     if (context) parts.push(context);
+    if (basePrompt === PROMPT_MAP(videoSystem).exploded) {
+      parts.push('Use the exploded-view source image as the first frame. Animate a seamless explode-and-retract cycle: components separate outward with precise mechanical spacing, pause briefly, then retract back to the same exploded composition. Maintain perfect product identity, clean technical readability, and loop cleanly without a visible cut.');
+    }
     if (selectedEnv?.promptSuffix) parts.push(selectedEnv.promptSuffix);
     if (tod === 'night') parts.push('night time, dark dramatic lighting, moonlight, deep shadows, cool blue tones');
     if (tod === 'day')   parts.push('bright natural daylight, golden hour, warm sunlight, vibrant colours');
@@ -117,20 +138,14 @@ export default function VideoStudio({
           firstFrameImageUrl,
           environmentId: selectedEnvironmentId,
         };
-        onUpdate({
-          ...videoSystem,
-          videoTasks: [...videoSystem.videoTasks.filter((t) => t.type !== type), task],
-        });
+        updateTask(task);
       } else {
         const taskId = data.taskId as string;
         let task: VideoTask = {
           id: taskId, type, prompt: finalPrompt, status: 'processing',
           firstFrameImageUrl, environmentId: selectedEnvironmentId,
         };
-        onUpdate({
-          ...videoSystem,
-          videoTasks: [...videoSystem.videoTasks.filter((t) => t.type !== type), task],
-        });
+        updateTask(task);
 
         for (let i = 0; i < 36; i++) {
           await new Promise((r) => setTimeout(r, 5000));
@@ -148,10 +163,7 @@ export default function VideoStudio({
           }
         }
 
-        onUpdate({
-          ...videoSystem,
-          videoTasks: [...videoSystem.videoTasks.filter((t) => t.type !== type), task],
-        });
+        updateTask(task);
       }
     } catch (err) {
       console.error('[VideoStudio] generation error:', err);
@@ -162,12 +174,15 @@ export default function VideoStudio({
 
   const handleSave = (taskId: string) => {
     const savedAt = new Date().toISOString();
-    onUpdate({
-      ...videoSystem,
-      videoTasks: videoSystem.videoTasks.map((t) =>
+    const current = latestVideoSystemRef.current;
+    const updated = {
+      ...current,
+      videoTasks: current.videoTasks.map((t) =>
         t.id === taskId ? { ...t, savedAt } : t
       ),
-    });
+    };
+    latestVideoSystemRef.current = updated;
+    onUpdate(updated);
   };
 
   const handleTimeOfDay = (type: VideoType, tod: 'night' | 'day') => {
@@ -178,6 +193,20 @@ export default function VideoStudio({
 
   const getTask = (type: VideoType): VideoTask | undefined =>
     videoSystem.videoTasks.find((t) => t.type === type);
+
+  useEffect(() => {
+    if (autoStartedRef.current) return;
+    const prompts = PROMPT_MAP(videoSystem);
+    const missingTypes = VIDEO_CONFIG
+      .map(({ type }) => type)
+      .filter((type) => prompts[type] && !videoSystem.videoTasks.some((task) => task.type === type));
+
+    if (missingTypes.length === 0) return;
+    autoStartedRef.current = true;
+    missingTypes.forEach((type) => {
+      void handleGenerate(type);
+    });
+  }, [videoSystem]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="flex flex-col gap-6 w-full">
