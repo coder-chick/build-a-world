@@ -9,7 +9,7 @@
 import { ProductWorld, VisualizationView } from '@/types/productWorld';
 import CustomizationPanel from './CustomizationPanel';
 import StyleSelector from './StyleSelector';
-import ProductVisualizer from './ProductVisualizer';
+import ProductVisualizer from '../visuals/ProductVisualizer';
 
 interface Props {
   productWorld: ProductWorld;

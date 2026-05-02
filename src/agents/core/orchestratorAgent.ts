@@ -11,10 +11,10 @@ import { saveProductWorld } from '@/services/butterbaseService';
 import { runProductStrategyAgent }  from './productStrategyAgent';
 import { runCustomizationAgent }    from './customizationAgent';
 import { runStyleAgent }            from './styleAgent';
-import { runVisualPromptAgent }     from './visualPromptAgent';
-import { runVideoPromptAgent }      from './videoPromptAgent';
-import { runGTMAgent }              from './gtmAgent';
-import { runSocialAgent }           from './socialAgent';
+import { runVisualPromptAgent }     from '../visuals/visualPromptAgent';
+import { runVideoPromptAgent }      from '../visuals/videoPromptAgent';
+import { runGTMAgent }              from '../gtm/gtmAgent';
+import { runSocialAgent }           from '../gtm/socialAgent';
 
 /**
  * Master orchestration function.

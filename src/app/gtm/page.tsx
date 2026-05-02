@@ -6,9 +6,9 @@
 
 import { useEffect, useState } from 'react';
 import { ProductWorld } from '@/types/productWorld';
-import GTMKit from '@/components/GTMKit';
-import SocialLaunch from '@/components/SocialLaunch';
-import LoadingOverlay from '@/components/LoadingOverlay';
+import GTMKit from '@/components/gtm/GTMKit';
+import SocialLaunch from '@/components/gtm/SocialLaunch';
+import LoadingOverlay from '@/components/shared/LoadingOverlay';
 import Link from 'next/link';
 import { publishPost } from '@/services/twitterService';
 

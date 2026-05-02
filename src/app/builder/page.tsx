@@ -6,10 +6,10 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { generateProductWorld, regenerateVisuals } from '@/agents/orchestratorAgent';
+import { generateProductWorld, regenerateVisuals } from '@/agents/core/orchestratorAgent';
 import { ProductWorld } from '@/types/productWorld';
-import ProductBuilder from '@/components/ProductBuilder';
-import LoadingOverlay from '@/components/LoadingOverlay';
+import ProductBuilder from '@/components/builder/ProductBuilder';
+import LoadingOverlay from '@/components/shared/LoadingOverlay';
 import Link from 'next/link';
 
 export default function BuilderPage() {

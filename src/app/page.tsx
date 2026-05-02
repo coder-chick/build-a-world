@@ -6,7 +6,7 @@
 
 import { useEffect, useRef } from 'react';
 import anime from 'animejs';
-import PromptInput from '@/components/PromptInput';
+import PromptInput from '@/components/chat/PromptInput';
 import Link from 'next/link';
 
 const FEATURES = [
@@ -202,9 +202,11 @@ export default function LandingPage() {
           Dive into any section or go straight to the builder and describe your product idea.
         </p>
         <div className="flex flex-wrap gap-3 justify-center">
-          <Link href="/builder"      className="btn-accent">🏗️&nbsp; Builder</Link>
+          <Link href="/chat"         className="btn-accent">💬&nbsp; Start Ideation</Link>
+          <Link href="/builder"      className="btn-ghost">🏗️&nbsp; Builder</Link>
           <Link href="/video"        className="btn-ghost">🎬&nbsp; Video Studio</Link>
           <Link href="/gtm"          className="btn-ghost">🚀&nbsp; GTM + Social</Link>
+          <Link href="/summary"      className="btn-ghost">📋&nbsp; Summary</Link>
           <Link href="/architecture" className="btn-ghost">🔭&nbsp; Architecture</Link>
         </div>
       </section>

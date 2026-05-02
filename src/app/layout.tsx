@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
-import ThemeToggle from '@/components/ThemeToggle';
-import NavClient from '@/components/NavClient';
+import ThemeToggle from '@/components/shared/ThemeToggle';
+import NavClient from '@/components/shared/NavClient';
 import Link from 'next/link';
 import { NAV_LINKS } from '@/lib/nav';
 

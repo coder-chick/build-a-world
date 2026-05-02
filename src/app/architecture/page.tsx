@@ -4,7 +4,7 @@
 // OWNER: TEAM 1
 // ─────────────────────────────────────────────────────────────────────────────
 
-import ArchitectureDiagram from '@/components/ArchitectureDiagram';
+import ArchitectureDiagram from '@/components/shared/ArchitectureDiagram';
 import Link from 'next/link';
 
 const TECH_STACK = [

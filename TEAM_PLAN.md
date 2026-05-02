@@ -20,11 +20,14 @@ Build-A-World is an **AI Product Lifecycle Engine**. A user types a product idea
 
 ## Team Ownership
 
-| Module | Owner | Key Files |
+| Module | Owner | Key Directories & Files |
 |---|---|---|
-| UI / Frontend / Interaction | **TEAM 1** | `/agents`, `/components`, `/app`, `/services/zaiService.ts`, `/services/butterbaseService.ts` |
-| Video Generation Pipeline | **TEAM 2** | `/services/seedanceService.ts`, `/agents/videoPromptAgent.ts`, `/components/VideoStudio.tsx`, `/app/video/page.tsx` |
-| Social Media + GTM Integration | **TEAM 3** | `/services/twitterService.ts`, `/agents/gtmAgent.ts`, `/agents/socialAgent.ts`, `/components/GTMKit.tsx`, `/components/SocialLaunch.tsx`, `/app/gtm/page.tsx` |
+| UI / Frontend / Orchestration | **TEAM 1** | `components/shared/`, `components/chat/`, `components/builder/`, `components/summary/`, `agents/core/`, `services/zaiService.ts`, `services/butterbaseService.ts`, `app/` pages (landing, chat, builder, summary, architecture) |
+| Image & Video Generation | **TEAM 2** | `components/visuals/`, `agents/visuals/`, `services/seedanceService.ts`, `app/video/` |
+| Social Media + GTM | **TEAM 3** | `components/gtm/`, `agents/gtm/`, `services/twitterService.ts`, `app/gtm/` |
+
+> **See `AGENTS.md`** at the repo root for detailed per-team AI agent instructions
+> including exact file boundaries, data contracts, and how-to guides.
 
 ---
 
@@ -45,8 +48,12 @@ Build-A-World is an **AI Product Lifecycle Engine**. A user types a product idea
 
 ## Folder Structure
 
+Each team has **dedicated subdirectories** inside `components/` and `agents/`.
+
 ```
-betaSuperVideoHackathon/
+build-a-world/
+├── AGENTS.md                         ← AI agent instructions per team
+├── TEAM_PLAN.md                      ← This file
 ├── .env.local                        ← All API keys (never commit)
 ├── .gitignore
 ├── next.config.js
@@ -56,53 +63,91 @@ betaSuperVideoHackathon/
 ├── package.json
 └── src/
     ├── types/
-    │   └── productWorld.ts           ← Central data model (TEAM 1)
+    │   └── productWorld.ts           ← Central data model (shared)
     │
     ├── utils/
-    │   ├── mockData.ts               ← Rich mock ProductWorld for demo fallback (TEAM 1)
-    │   └── promptTemplates.ts        ← All LLM prompt templates as constants (TEAM 1)
+    │   ├── mockData.ts               ← Example prompts
+    │   └── promptTemplates.ts        ← All LLM prompt templates
+    │
+    ├── lib/
+    │   └── nav.ts                    ← Navigation link definitions (TEAM 1)
     │
     ├── services/
     │   ├── zaiService.ts             ← Z.AI → OpenAI → Anthropic fallback (TEAM 1)
+    │   ├── butterbaseService.ts      ← Save/load ProductWorld to Butterbase (TEAM 1)
     │   ├── seedanceService.ts        ← Seedance video API + mock fallback (TEAM 2)
-    │   ├── twitterService.ts         ← Twitter/X OAuth post + mock metrics (TEAM 3)
-    │   └── butterbaseService.ts      ← Save/load ProductWorld to Butterbase (TEAM 1)
+    │   └── twitterService.ts         ← Twitter/X OAuth post + mock metrics (TEAM 3)
     │
     ├── agents/
-    │   ├── orchestratorAgent.ts      ← Coordinates all agents (TEAM 1)
-    │   ├── productStrategyAgent.ts   ← Product name, tagline, features (TEAM 1)
-    │   ├── customizationAgent.ts     ← Component dropdowns (TEAM 1)
-    │   ├── styleAgent.ts             ← 9 visual style options (TEAM 1)
-    │   ├── visualPromptAgent.ts      ← Product/Knolling/Exploded prompts (TEAM 1)
-    │   ├── videoPromptAgent.ts       ← 4 Seedance-optimized video prompts (TEAM 2)
-    │   ├── gtmAgent.ts               ← Positioning, audience, GTM kit (TEAM 3)
-    │   └── socialAgent.ts            ← Twitter posts + A/B simulation (TEAM 3)
+    │   ├── core/                     ← TEAM 1 — Orchestration
+    │   │   ├── index.ts
+    │   │   ├── orchestratorAgent.ts
+    │   │   ├── productStrategyAgent.ts
+    │   │   ├── customizationAgent.ts
+    │   │   └── styleAgent.ts
+    │   │
+    │   ├── visuals/                  ← TEAM 2 — Image & video generation
+    │   │   ├── index.ts
+    │   │   ├── visualPromptAgent.ts
+    │   │   └── videoPromptAgent.ts
+    │   │
+    │   └── gtm/                      ← TEAM 3 — Social & go-to-market
+    │       ├── index.ts
+    │       ├── gtmAgent.ts
+    │       └── socialAgent.ts
     │
     ├── components/
-    │   ├── ThemeToggle.tsx           ← Light/dark toggle (TEAM 1)
-    │   ├── PromptInput.tsx           ← Landing prompt box + example chips (TEAM 1)
-    │   ├── ProductBuilder.tsx        ← 3-column dashboard shell (TEAM 1)
-    │   ├── CustomizationPanel.tsx    ← Left panel: dropdowns per component (TEAM 1)
-    │   ├── StyleSelector.tsx         ← Creative Clusters dot-map UI (TEAM 1)
-    │   ├── ProductVisualizer.tsx     ← Center panel: view area with transitions (TEAM 1)
-    │   ├── ViewToggle.tsx            ← Product / Knolling / Exploded pill toggle (TEAM 1)
-    │   ├── VideoStudio.tsx           ← Video cards, polling, player (TEAM 2)
-    │   ├── GTMKit.tsx                ← Positioning + audience + post cards (TEAM 3)
-    │   ├── SocialLaunch.tsx          ← A/B winner + mock engagement metrics (TEAM 3)
-    │   ├── ArchitectureDiagram.tsx   ← Agent flow SVG diagram (TEAM 1)
-    │   └── LoadingOverlay.tsx        ← Full-screen generation animation (TEAM 1)
+    │   ├── shared/                   ← TEAM 1 — Shared UI primitives
+    │   │   ├── index.ts
+    │   │   ├── ThemeToggle.tsx
+    │   │   ├── LoadingOverlay.tsx
+    │   │   ├── NavClient.tsx
+    │   │   └── ArchitectureDiagram.tsx
+    │   │
+    │   ├── chat/                     ← TEAM 1 — Chat ideation page
+    │   │   ├── index.ts
+    │   │   ├── ChatInterface.tsx
+    │   │   ├── ChatMessage.tsx
+    │   │   └── PromptInput.tsx
+    │   │
+    │   ├── builder/                  ← TEAM 1 — Builder page
+    │   │   ├── index.ts
+    │   │   ├── ProductBuilder.tsx
+    │   │   ├── CustomizationPanel.tsx
+    │   │   └── StyleSelector.tsx
+    │   │
+    │   ├── visuals/                  ← TEAM 2 — Image & video display
+    │   │   ├── index.ts
+    │   │   ├── ProductVisualizer.tsx
+    │   │   ├── ViewToggle.tsx
+    │   │   └── VideoStudio.tsx
+    │   │
+    │   ├── gtm/                      ← TEAM 3 — GTM & social
+    │   │   ├── index.ts
+    │   │   ├── GTMKit.tsx
+    │   │   └── SocialLaunch.tsx
+    │   │
+    │   └── summary/                  ← TEAM 1 — Final summary page
+    │       ├── index.ts
+    │       ├── AssetGallery.tsx
+    │       └── PlanSummary.tsx
     │
     └── app/
-        ├── layout.tsx                ← Global layout, ThemeToggle, fonts (TEAM 1)
-        ├── page.tsx                  ← PAGE 1: Landing (TEAM 1)
+        ├── layout.tsx                ← Global layout + nav (TEAM 1)
+        ├── page.tsx                  ← Landing (TEAM 1)
+        ├── globals.css               ← Design tokens + component classes (TEAM 1)
+        ├── chat/
+        │   └── page.tsx              ← Chat ideation (TEAM 1)
         ├── builder/
-        │   └── page.tsx              ← PAGE 2: Product Builder (TEAM 1)
+        │   └── page.tsx              ← Product Builder (TEAM 1)
         ├── video/
-        │   └── page.tsx              ← PAGE 3: Video Studio (TEAM 2)
+        │   └── page.tsx              ← Video Studio (TEAM 2)
         ├── gtm/
-        │   └── page.tsx              ← PAGE 4: GTM + Social (TEAM 3)
+        │   └── page.tsx              ← GTM + Social (TEAM 3)
+        ├── summary/
+        │   └── page.tsx              ← Final summary (TEAM 1)
         └── architecture/
-            └── page.tsx              ← PAGE 5: Architecture Demo (TEAM 1)
+            └── page.tsx              ← Architecture Demo (TEAM 1)
 ```
 
 ---

@@ -6,8 +6,8 @@
 
 import { useEffect, useState } from 'react';
 import { ProductWorld, VideoSystem } from '@/types/productWorld';
-import VideoStudio from '@/components/VideoStudio';
-import LoadingOverlay from '@/components/LoadingOverlay';
+import VideoStudio from '@/components/visuals/VideoStudio';
+import LoadingOverlay from '@/components/shared/LoadingOverlay';
 import Link from 'next/link';
 export default function VideoPage() {
   const [world,   setWorld  ] = useState<ProductWorld | null>(null);
