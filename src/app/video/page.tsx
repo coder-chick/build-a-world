@@ -35,6 +35,14 @@ export default function VideoPage() {
     <>
       <LoadingOverlay visible={loading} step={0} />
 
+      {!loading && !world && (
+        <div className="flex flex-col items-center justify-center p-12 text-center h-[50vh]">
+          <h2 className="text-xl font-bold text-fg mb-4">No Product Found</h2>
+          <p className="text-sm text-fg-muted mb-6">You need to create a product in the Builder first.</p>
+          <Link href="/" className="btn-primary">Go to Home</Link>
+        </div>
+      )}
+
       {!loading && world && (
         <>
           {/* Breadcrumb */}
