@@ -1,6 +1,6 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // OWNER: TEAM 1
-// Rich mock ProductWorld object based on the "temperature & humidity sensor"
+// Rich mock ProductWorld object based on the "temperature & battery sensor"
 // example from the hackathon screenshots. Used when MOCK_MODE=true.
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -9,7 +9,7 @@ import { ProductWorld } from '@/types/productWorld';
 export const MOCK_PRODUCT_WORLD: ProductWorld = {
   id: 'mock-001',
   createdAt: new Date().toISOString(),
-  userPrompt: 'Create a smart temperature and humidity sensor for modern homes',
+  userPrompt: 'Create a smart wireless charging pad for modern homes',
   theme: 'dark',
 
   productOverview: {
@@ -17,7 +17,7 @@ export const MOCK_PRODUCT_WORLD: ProductWorld = {
     tagline: "Your home's climate, beautifully aware.",
     targetUser: 'Design-conscious homeowners and smart-home enthusiasts aged 25–45',
     coreUseCase:
-      'Passive ambient monitoring of indoor temperature and humidity with a sleek always-on display',
+      'Passive ambient monitoring of indoor temperature and battery with a sleek always-on display',
     keyFeatures: [
       'E-ink display with ambient backlight',
       'Bluetooth 5.2 + Zigbee dual-radio',
@@ -197,7 +197,7 @@ export const MOCK_PRODUCT_WORLD: ProductWorld = {
     actionVideoPrompt:
       'Performance video for ThermoSense Pro. Split-screen montage: left shows sensor on desk during work-from-home setup; right shows iOS notification alert "Humidity too high". Cut to: homeowner adjusting humidifier in response. Cut to: macro of sensor display. Camera: handheld, kinetic edits. Lighting: mixed natural and artificial. Motion: fast cuts, dynamic. Emotional tone: efficient, smart, empowering. 30 seconds.',
     artisticVideoPrompt:
-      'Styled artistic video for ThermoSense Pro in Futurist aesthetic. Pure white void studio. Sensor rotates slowly on a glass pedestal. Teal light beams scan the device. Particles of light represent temperature and humidity data streaming outward. Abstract data visualisation overlaid in HUD style. Camera: slow orbit 360°. Lighting: neon teal and white. Emotional tone: aspirational, premium, technological wonder. 30 seconds.',
+      'Styled artistic video for ThermoSense Pro in Futurist aesthetic. Pure white void studio. Sensor rotates slowly on a glass pedestal. Teal light beams scan the device. Particles of light represent temperature and battery data streaming outward. Abstract data visualisation overlaid in HUD style. Camera: slow orbit 360°. Lighting: neon teal and white. Emotional tone: aspirational, premium, technological wonder. 30 seconds.',
     animatedVideoPrompt:
       'Animated experimental video for ThermoSense Pro. 2.5D motion graphics. Product explodes into its components mid-air, each labelled with animated text. Components re-assemble. Then the assembled sensor morphs into a home floor plan showing coverage zones. Colour palette: dark background with teal and white accents. Smooth easing. anime.js-style motion principles. 30 seconds.',
     simulated3DTurnaroundPrompt:
@@ -264,7 +264,7 @@ export const MOCK_PRODUCT_WORLD: ProductWorld = {
 };
 
 export const EXAMPLE_PROMPTS = [
-  'Create a smart temperature and humidity sensor for modern homes',
+  'Create a smart wireless charging pad for modern homes',
   'Design a futuristic sneaker for urban runners',
   'Build a minimal mechanical keyboard for digital nomads',
   'Design a solar-powered backpack for everyday explorers',

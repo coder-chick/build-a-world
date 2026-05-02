@@ -62,7 +62,7 @@ export default function PromptInput() {
           onKeyDown={(e) => {
             if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) handleBuild();
           }}
-          placeholder="Describe your product idea…&#10;e.g. &quot;Create a smart temperature and humidity sensor for modern homes&quot;"
+          placeholder="Describe your product idea…\ne.g. &quot;A sleek, minimalist coffee maker for modern kitchens&quot;"
           rows={4}
           className="
             w-full bg-transparent resize-none
