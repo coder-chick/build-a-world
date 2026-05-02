@@ -7,8 +7,6 @@
 import { Social, GTMKit } from '@/types/productWorld';
 import { callLLM, parseJSON } from '@/services/zaiService';
 import { SOCIAL_SYSTEM, SOCIAL_USER } from '@/utils/promptTemplates';
-import { MOCK_PRODUCT_WORLD } from '@/utils/mockData';
-
 interface SocialOutput {
   selectedPost: string;
   abTestWinner: 'A' | 'B';
@@ -31,18 +29,16 @@ export async function runSocialAgent(gtmKit: GTMKit): Promise<Social> {
     SOCIAL_USER(gtmKit.twitterPosts, aTotal, bTotal)
   );
 
-  if (raw === '__MOCK__') return MOCK_PRODUCT_WORLD.social;
+  if (raw === '__MOCK__') throw new Error('[SocialAgent] LLM call failed — no API key available');
 
   const parsed = parseJSON<SocialOutput>(raw);
-  if (!parsed) {
-    console.warn('[SocialAgent] JSON parse failed — using mock');
-    return MOCK_PRODUCT_WORLD.social;
-  }
+  if (!parsed) throw new Error('[SocialAgent] Failed to parse LLM response');
 
+  const defaultMetrics: Social['mockMetrics'] = { impressions: 0, likes: 0, reposts: 0, replies: 0, clickIntent: 0, shareabilityScore: 0 };
   return {
     selectedPost:   parsed.selectedPost ?? gtmKit.twitterPosts[0],
     postedStatus:   'idle',
-    mockMetrics:    parsed.mockMetrics ?? MOCK_PRODUCT_WORLD.social.mockMetrics,
+    mockMetrics:    parsed.mockMetrics ?? defaultMetrics,
     abTestWinner:   parsed.abTestWinner ?? (bTotal > aTotal ? 'B' : 'A'),
   };
 }

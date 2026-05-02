@@ -138,8 +138,6 @@ export default function LandingPage() {
           <Link href="/architecture" className="text-xs text-fg-muted hover:text-fg transition-colors underline underline-offset-4">
             How it works →
           </Link>
-          <span className="text-fg-muted/40 text-xs">·</span>
-          <span className="text-xs text-fg-muted">MOCK_MODE demo — no API keys needed</span>
         </div>
       </section>
 

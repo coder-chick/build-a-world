@@ -9,8 +9,6 @@ import { ProductWorld, VideoSystem } from '@/types/productWorld';
 import VideoStudio from '@/components/VideoStudio';
 import LoadingOverlay from '@/components/LoadingOverlay';
 import Link from 'next/link';
-import { MOCK_PRODUCT_WORLD } from '@/utils/mockData';
-
 export default function VideoPage() {
   const [world,   setWorld  ] = useState<ProductWorld | null>(null);
   const [loading, setLoading] = useState(true);
@@ -19,9 +17,7 @@ export default function VideoPage() {
     const raw = sessionStorage.getItem('baw_world');
     if (raw) {
       try { setWorld(JSON.parse(raw)); }
-      catch { setWorld(MOCK_PRODUCT_WORLD); }
-    } else {
-      setWorld(MOCK_PRODUCT_WORLD);
+      catch { /* malformed session data — stay null */ }
     }
     setLoading(false);
   }, []);

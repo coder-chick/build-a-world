@@ -6,8 +6,6 @@
 import { VisualSystem, ProductOverview } from '@/types/productWorld';
 import { callLLM, parseJSON } from '@/services/zaiService';
 import { VISUAL_PROMPT_SYSTEM, VISUAL_PROMPT_USER } from '@/utils/promptTemplates';
-import { MOCK_PRODUCT_WORLD } from '@/utils/mockData';
-
 interface VisualPromptOutput {
   productViewPrompt: string;
   knollingViewPrompt: string;
@@ -24,15 +22,10 @@ export async function runVisualPromptAgent(
     VISUAL_PROMPT_USER(overview.productName, selectedStyle, overview.coreUseCase)
   );
 
-  const base = MOCK_PRODUCT_WORLD.visualSystem;
-
-  if (raw === '__MOCK__') return { ...base, currentView: 'product' };
+  if (raw === '__MOCK__') throw new Error('[VisualPromptAgent] LLM call failed — no API key available');
 
   const parsed = parseJSON<VisualPromptOutput>(raw);
-  if (!parsed) {
-    console.warn('[VisualPromptAgent] JSON parse failed — using mock');
-    return { ...base, currentView: 'product' };
-  }
+  if (!parsed) throw new Error('[VisualPromptAgent] Failed to parse LLM response');
 
   return {
     currentView: 'product',

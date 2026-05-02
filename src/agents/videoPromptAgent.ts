@@ -6,8 +6,6 @@
 import { VideoSystem, ProductOverview } from '@/types/productWorld';
 import { callLLM, parseJSON } from '@/services/zaiService';
 import { VIDEO_PROMPT_SYSTEM, VIDEO_PROMPT_USER } from '@/utils/promptTemplates';
-import { MOCK_PRODUCT_WORLD } from '@/utils/mockData';
-
 interface VideoPromptOutput {
   heroVideoPrompt: string;
   actionVideoPrompt: string;
@@ -25,15 +23,10 @@ export async function runVideoPromptAgent(
     VIDEO_PROMPT_USER(overview.productName, selectedStyle)
   );
 
-  const base = MOCK_PRODUCT_WORLD.videoSystem;
-
-  if (raw === '__MOCK__') return { ...base, videoTasks: [] };
+  if (raw === '__MOCK__') throw new Error('[VideoPromptAgent] LLM call failed — no API key available');
 
   const parsed = parseJSON<VideoPromptOutput>(raw);
-  if (!parsed) {
-    console.warn('[VideoPromptAgent] JSON parse failed — using mock');
-    return { ...base, videoTasks: [] };
-  }
+  if (!parsed) throw new Error('[VideoPromptAgent] Failed to parse LLM response');
 
   return {
     heroVideoPrompt:              parsed.heroVideoPrompt,

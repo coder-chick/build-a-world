@@ -6,20 +6,15 @@
 import { ProductStyle, ProductOverview } from '@/types/productWorld';
 import { callLLM, parseJSON } from '@/services/zaiService';
 import { STYLE_SYSTEM, STYLE_USER } from '@/utils/promptTemplates';
-import { MOCK_PRODUCT_WORLD } from '@/utils/mockData';
-
 interface StyleAgentOutput {
   styles: ProductStyle[];
 }
 
 export async function runStyleAgent(overview: ProductOverview): Promise<ProductStyle[]> {
   const raw = await callLLM(STYLE_SYSTEM, STYLE_USER(overview.productName));
-  if (raw === '__MOCK__') return MOCK_PRODUCT_WORLD.styles;
+  if (raw === '__MOCK__') throw new Error('[StyleAgent] LLM call failed — no API key available');
 
   const parsed = parseJSON<StyleAgentOutput>(raw);
-  if (!parsed?.styles?.length) {
-    console.warn('[StyleAgent] JSON parse failed — using mock');
-    return MOCK_PRODUCT_WORLD.styles;
-  }
+  if (!parsed?.styles?.length) throw new Error('[StyleAgent] Failed to parse LLM response');
   return parsed.styles;
 }

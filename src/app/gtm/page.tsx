@@ -10,7 +10,6 @@ import GTMKit from '@/components/GTMKit';
 import SocialLaunch from '@/components/SocialLaunch';
 import LoadingOverlay from '@/components/LoadingOverlay';
 import Link from 'next/link';
-import { MOCK_PRODUCT_WORLD } from '@/utils/mockData';
 import { publishPost } from '@/services/twitterService';
 
 export default function GTMPage() {
@@ -23,9 +22,7 @@ export default function GTMPage() {
     const raw = sessionStorage.getItem('baw_world');
     if (raw) {
       try { setWorld(JSON.parse(raw)); }
-      catch { setWorld(MOCK_PRODUCT_WORLD); }
-    } else {
-      setWorld(MOCK_PRODUCT_WORLD);
+      catch { /* malformed session data — stay null */ }
     }
     setLoading(false);
   }, []);
