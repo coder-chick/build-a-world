@@ -39,7 +39,51 @@ export default function VideoPage() {
         <div className="flex flex-col items-center justify-center p-12 text-center h-[50vh]">
           <h2 className="text-xl font-bold text-fg mb-4">No Product Found</h2>
           <p className="text-sm text-fg-muted mb-6">You need to create a product in the Builder first.</p>
-          <Link href="/" className="btn-primary">Go to Home</Link>
+          <div className="flex gap-4">
+            <Link href="/" className="btn-primary">Go to Home</Link>
+            <button 
+              onClick={() => {
+                setWorld({
+                  id: 'sandbox',
+                  createdAt: new Date().toISOString(),
+                  userPrompt: 'Sandbox Mode',
+                  theme: 'dark',
+                  productOverview: {
+                    productName: 'Sandbox Testing',
+                    tagline: 'Iterate video prompts independently',
+                    targetUser: 'Developers',
+                    coreUseCase: 'Testing',
+                    keyFeatures: [],
+                    breakthroughInnovation: 'None'
+                  },
+                  customizationSystem: { components: [] },
+                  styles: [],
+                  selectedStyle: '',
+                  selectedComponents: {},
+                  visualSystem: {
+                    currentView: 'product',
+                    productViewPrompt: '',
+                    knollingViewPrompt: '',
+                    explodedViewPrompt: '',
+                    componentPrompts: []
+                  },
+                  videoSystem: {
+                    heroVideoPrompt: 'Cinematic shot of the product in the provided image in a minimalist studio room. Dramatic lighting, slow pan, seamless loop.',
+                    actionVideoPrompt: 'Action shot of the product in the provided image being used in a realistic context. Dynamic camera motion.',
+                    artisticVideoPrompt: 'Abstract artistic interpretation of the product in the provided image. Neon cyberpunk aesthetics, fast cuts.',
+                    animatedVideoPrompt: 'Stylized 3D animation of the product in the provided image spinning in the center of the frame.',
+                    simulated3DTurnaroundPrompt: '',
+                    videoTasks: []
+                  },
+                  gtmKit: {} as any,
+                  social: {} as any,
+                });
+              }}
+              className="btn-accent"
+            >
+              Enter Sandbox Mode
+            </button>
+          </div>
         </div>
       )}
 
