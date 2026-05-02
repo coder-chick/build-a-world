@@ -72,7 +72,7 @@ export default function VideoPage() {
                     heroVideoPrompt: 'Cinematic shot of the product in the provided image in a minimalist studio room. Dramatic lighting, slow pan, seamless loop.',
                     actionVideoPrompt: 'Action shot of the product in the provided image being used in a realistic context. Dynamic camera motion.',
                     artisticVideoPrompt: 'Abstract artistic interpretation of the product in the provided image. Neon cyberpunk aesthetics, fast cuts.',
-                    animatedVideoPrompt: 'Stylized 2D anime animation of the product in the provided image. Vibrant colors, expressive cartoony motion highlights, and dynamic action.',
+                    animatedVideoPrompt: 'Stylized 2D anime animation of the product in the provided image. Vibrant colors, expressive cartoony motion highlights, dynamic action, safe for work, and family-friendly content only.',
                     simulated3DTurnaroundPrompt: '',
                     videoTasks: []
                   },
