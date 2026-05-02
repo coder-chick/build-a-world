@@ -26,7 +26,26 @@ export default function VideoPage() {
     setWorld(prev => {
       if (!prev) return prev;
       const w = { ...prev, videoSystem: updated };
-      sessionStorage.setItem('baw_world', JSON.stringify(w));
+      // Strip base64 image blobs before saving — they can exceed the 5 MB sessionStorage quota.
+      // The in-memory `w` retains full data (used as first-frame inputs); storage only keeps URLs/metadata.
+      const stripped = {
+        ...w,
+        visualSystem: {
+          ...w.visualSystem,
+          generatedImages: w.visualSystem.generatedImages
+            ? {
+                product:  w.visualSystem.generatedImages.product?.startsWith('data:')  ? undefined : w.visualSystem.generatedImages.product,
+                knolling: w.visualSystem.generatedImages.knolling?.startsWith('data:') ? undefined : w.visualSystem.generatedImages.knolling,
+                exploded: w.visualSystem.generatedImages.exploded?.startsWith('data:') ? undefined : w.visualSystem.generatedImages.exploded,
+              }
+            : undefined,
+        },
+      };
+      try {
+        sessionStorage.setItem('baw_world', JSON.stringify(stripped));
+      } catch {
+        // Quota still exceeded even after stripping — silently ignore, state lives in memory
+      }
       return w;
     });
   };
@@ -57,7 +76,15 @@ export default function VideoPage() {
             <p className="text-sm text-fg-muted mt-1">Generate cinematic product videos powered by Seedance 2.0</p>
           </div>
 
-          <VideoStudio videoSystem={world.videoSystem} onUpdate={handleVideoUpdate} />
+          <VideoStudio
+            videoSystem={world.videoSystem}
+            onUpdate={handleVideoUpdate}
+            selectedEnvironmentId={world.visualSystem.selectedEnvironment}
+            generatedImages={world.visualSystem.generatedImages}
+            productOverview={world.productOverview}
+            originalPrompt={world.userPrompt}
+            selectedStyle={world.selectedStyle}
+          />
         </>
       )}
     </>

@@ -8,3 +8,6 @@ dist/
 .DS_Store
 Thumbs.db
 .vscode/settings.json
+
+public/veo-cache/
+tsconfig.tsbuildinfo

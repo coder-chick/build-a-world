@@ -62,24 +62,25 @@ export default function StyleSelector({ styles, selected, onSelect }: Props) {
 
   return (
     <div className="flex flex-col gap-3">
-      <h3 className="text-xs font-semibold uppercase tracking-widest text-white/40">
+      <h3 className="text-xs font-semibold uppercase tracking-widest" style={{ color: 'rgb(var(--color-fg-muted))' }}>
         Style
       </h3>
-      <p className="text-[11px] text-white/30">
+      <p className="text-[11px]" style={{ color: 'rgb(var(--color-fg-muted))' }}>
         Pick an aesthetic vibe to level up your product look.
       </p>
 
       {/* Cluster map */}
       <div
         ref={containerRef}
-        className="relative w-full aspect-[4/3] rounded-xl bg-white/5 border border-white/10 overflow-hidden"
+        className="relative w-full aspect-[4/3] rounded-xl overflow-hidden"
+        style={{ background: 'rgb(var(--color-bg))', border: '1px solid rgb(var(--color-border) / 0.15)' }}
       >
         {/* Background scatter dots */}
         {Array.from({ length: 60 }).map((_, i) => (
           <div
             key={`bg-${i}`}
-            className="absolute w-1 h-1 rounded-full bg-white/10"
-            style={{
+            className="absolute w-1 h-1 rounded-full"
+            style={{ background: 'rgb(var(--color-border) / 0.2)',
               left: `${Math.random() * 90 + 5}%`,
               top:  `${Math.random() * 90 + 5}%`,
             }}
@@ -118,8 +119,11 @@ export default function StyleSelector({ styles, selected, onSelect }: Props) {
                 }}
               />
               <span
-                className={`text-[10px] font-medium whitespace-nowrap transition-opacity duration-200
-                  ${isSelected ? 'opacity-100 text-white' : 'opacity-0 group-hover:opacity-70 text-white/60'}`}
+                className="text-[10px] font-medium whitespace-nowrap transition-opacity duration-200"
+                style={{
+                  opacity: isSelected ? 1 : undefined,
+                  color: 'rgb(var(--color-fg))',
+                }}
               >
                 {style.name}
               </span>
@@ -130,8 +134,8 @@ export default function StyleSelector({ styles, selected, onSelect }: Props) {
 
       {/* Selected style summary */}
       {selected && (
-        <div className="rounded-xl bg-white/5 px-4 py-3 text-xs text-white/60 leading-relaxed">
-          <span className="font-semibold text-white/80">{selected}: </span>
+        <div className="rounded-xl px-4 py-3 text-xs leading-relaxed" style={{ background: 'rgb(var(--color-bg))', border: '1px solid rgb(var(--color-border) / 0.12)', color: 'rgb(var(--color-fg))' }}>
+          <span className="font-semibold" style={{ color: 'rgb(var(--color-fg))' }}>{selected}: </span>
           {styles.find((s) => s.name === selected)?.productFeel ?? ''}
         </div>
       )}

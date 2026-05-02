@@ -1,94 +1,50 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // OWNER: TEAM 1
-// LLM Service — tries Z.AI first, falls back to OpenAI, then Anthropic.
-// If MOCK_MODE=true or all keys fail, returns a mock response sentinel.
-// TODO: fill ZAI_API_KEY, OPENAI_API_KEY, ANTHROPIC_API_KEY in .env.local
+// LLM Service — uses Google Gemini for all LLM calls.
+// If MOCK_MODE=true or Gemini fails, returns a mock response sentinel.
 // ─────────────────────────────────────────────────────────────────────────────
 
 const MOCK_MODE = process.env.MOCK_MODE === 'true';
 
-async function callZai(system: string, user: string): Promise<string> {
-  const key = process.env.ZAI_API_KEY;
-  if (!key) throw new Error('ZAI_API_KEY not set');
+async function callGemini(system: string, user: string): Promise<string> {
+  const key = process.env.GOOGLE_API_KEY;
+  if (!key) throw new Error('GOOGLE_API_KEY not set');
 
-  const res = await fetch('https://api.z.ai/v1/chat/completions', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${key}` },
-    body: JSON.stringify({
-      model: 'z1-preview',
-      messages: [
-        { role: 'system', content: system },
-        { role: 'user', content: user },
-      ],
-      temperature: 0.7,
-    }),
-  });
-  if (!res.ok) throw new Error(`Z.AI error ${res.status}`);
+  const res = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [
+          { role: 'user', parts: [{ text: `${system}\n\n${user}` }] },
+        ],
+        generationConfig: { temperature: 0.7 },
+      }),
+    }
+  );
+  if (!res.ok) {
+    const text = await res.text().catch(() => '');
+    throw new Error(`Gemini error ${res.status}: ${text.slice(0, 200)}`);
+  }
   const data = await res.json();
-  return data.choices[0].message.content as string;
-}
-
-async function callOpenAI(system: string, user: string): Promise<string> {
-  const key = process.env.OPENAI_API_KEY;
-  if (!key) throw new Error('OPENAI_API_KEY not set');
-
-  const res = await fetch('https://api.openai.com/v1/chat/completions', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${key}` },
-    body: JSON.stringify({
-      model: 'gpt-4o',
-      messages: [
-        { role: 'system', content: system },
-        { role: 'user', content: user },
-      ],
-      temperature: 0.7,
-    }),
-  });
-  if (!res.ok) throw new Error(`OpenAI error ${res.status}`);
-  const data = await res.json();
-  return data.choices[0].message.content as string;
-}
-
-async function callAnthropic(system: string, user: string): Promise<string> {
-  const key = process.env.ANTHROPIC_API_KEY;
-  if (!key) throw new Error('ANTHROPIC_API_KEY not set');
-
-  const res = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': key,
-      'anthropic-version': '2023-06-01',
-    },
-    body: JSON.stringify({
-      model: 'claude-opus-4-5',
-      max_tokens: 2048,
-      system,
-      messages: [{ role: 'user', content: user }],
-    }),
-  });
-  if (!res.ok) throw new Error(`Anthropic error ${res.status}`);
-  const data = await res.json();
-  return data.content[0].text as string;
+  return data.candidates[0].content.parts[0].text as string;
 }
 
 /**
- * Main LLM call — tries Z.AI → OpenAI → Anthropic in order.
- * Returns '__MOCK__' sentinel if MOCK_MODE or all providers fail.
+ * Main LLM call — uses Google Gemini.
+ * Returns '__MOCK__' sentinel if MOCK_MODE or Gemini fails.
  */
 export async function callLLM(system: string, user: string): Promise<string> {
   if (MOCK_MODE) return '__MOCK__';
 
-  const providers = [callZai, callOpenAI, callAnthropic];
-  for (const provider of providers) {
-    try {
-      return await provider(system, user);
-    } catch {
-      // try next provider
-    }
+  try {
+    return await callGemini(system, user);
+  } catch (err) {
+    console.warn('[zaiService] Gemini failed:', err instanceof Error ? err.message : err);
   }
 
-  console.warn('[zaiService] All LLM providers failed — returning mock sentinel');
+  console.warn('[zaiService] LLM provider failed — returning mock sentinel');
   return '__MOCK__';
 }
 

@@ -38,15 +38,30 @@ export interface ProductStyle {
 
 export type VisualizationView = 'product' | 'knolling' | 'exploded';
 
+export interface EnvironmentPreset {
+  id: string;
+  name: string;
+  description: string;
+  promptSuffix: string;   // appended to every video prompt when this env is active
+  gradient: string;       // CSS gradient for the preview swatch
+}
+
 export interface VisualSystem {
   currentView: VisualizationView;
   productViewPrompt: string;
   knollingViewPrompt: string;
   explodedViewPrompt: string;
   componentPrompts: string[];
+  // Populated client-side after CogView-3 generation
+  generatedImages?: {
+    product?: string;
+    knolling?: string;
+    exploded?: string;
+  };
+  selectedEnvironment?: string; // EnvironmentPreset.id
 }
 
-export type VideoType = 'hero' | 'action' | 'artistic' | 'animated';
+export type VideoType = 'hero' | 'action' | 'artistic' | 'animated' | 'interpolation';
 export type VideoStatus = 'idle' | 'pending' | 'processing' | 'complete' | 'failed';
 
 export interface VideoTask {
@@ -56,6 +71,9 @@ export interface VideoTask {
   status: VideoStatus;
   url?: string;
   thumbnailUrl?: string;
+  firstFrameImageUrl?: string; // CogView image used as first frame
+  environmentId?: string;      // environment applied when this task was created
+  savedAt?: string;            // ISO timestamp if user saved this video
 }
 
 export interface VideoSystem {
@@ -64,6 +82,7 @@ export interface VideoSystem {
   artisticVideoPrompt: string;
   animatedVideoPrompt: string;
   simulated3DTurnaroundPrompt: string;
+  interpolationVideoPrompt: string;
   videoTasks: VideoTask[];
 }
 

@@ -23,37 +23,34 @@ export default function CustomizationPanel({
 
   return (
     <div className="flex flex-col gap-5">
-      <h3 className="text-xs font-semibold uppercase tracking-widest text-white/40">
+      <h3 className="text-xs font-semibold uppercase tracking-widest" style={{ color: 'rgb(var(--color-fg-muted))' }}>
         Customise
       </h3>
 
       {customizationSystem.components.map((comp) => (
         <div key={comp.name} className="flex flex-col gap-1.5">
-          <label className="text-xs font-medium text-white/60">{comp.name}</label>
+          <label className="text-xs font-medium" style={{ color: 'rgb(var(--color-fg-muted))' }}>{comp.name}</label>
           <select
             value={selectedComponents[comp.name] ?? comp.options[0]?.name}
             onChange={(e) => onComponentChange(comp.name, e.target.value)}
-            className="
-              w-full px-3 py-2 rounded-xl text-sm
-              bg-white/5 border border-white/10
-              text-white
-              focus:outline-none focus:border-accent/50
-              transition-colors duration-200
-              appearance-none cursor-pointer
-            "
+            className="w-full px-3 py-2 rounded-xl text-sm focus:outline-none focus:border-accent/50 transition-colors duration-200 appearance-none cursor-pointer"
+            style={{
+              background: 'rgb(var(--color-bg))',
+              border: '1px solid rgb(var(--color-border) / 0.2)',
+              color: 'rgb(var(--color-fg))',
+            }}
           >
             {comp.options.map((opt) => (
               <option
                 key={opt.name}
                 value={opt.name}
-                className="bg-surface-dark text-white"
               >
                 {opt.name}
               </option>
             ))}
           </select>
           {/* Show impact of selected option */}
-          <p className="text-[11px] text-white/30 leading-snug">
+          <p className="text-[11px] leading-snug" style={{ color: 'rgb(var(--color-fg-muted))' }}>
             {comp.options.find((o) => o.name === selectedComponents[comp.name])?.functionalImpact ?? ''}
           </p>
         </div>

@@ -49,7 +49,7 @@ export async function generateProductWorld(
   // ── Step 3: Visual + Video prompts (can run in parallel) ──────────────────
   const [visualSystem, videoSystem] = await Promise.all([
     runVisualPromptAgent(productOverview, selectedStyle),
-    runVideoPromptAgent(productOverview, selectedStyle),
+    runVideoPromptAgent(productOverview, selectedStyle, userPrompt),
   ]);
 
   // ── Step 4: GTM Kit ────────────────────────────────────────────────────────
@@ -95,7 +95,7 @@ export async function regenerateVisuals(
 
   const [visualSystem, videoSystem] = await Promise.all([
     runVisualPromptAgent(productWorld.productOverview, selectedStyle),
-    runVideoPromptAgent(productWorld.productOverview, selectedStyle),
+    runVideoPromptAgent(productWorld.productOverview, selectedStyle, productWorld.userPrompt),
   ]);
 
   const updated: ProductWorld = {
