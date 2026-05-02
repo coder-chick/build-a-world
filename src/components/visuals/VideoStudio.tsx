@@ -34,7 +34,7 @@ export default function VideoStudio({ videoSystem, onUpdate }: Props) {
   const [generating, setGenerating] = useState<Record<string, boolean>>({});
 
   const handleGenerate = async (type: VideoType) => {
-    let prompt = PROMPT_MAP(videoSystem)[type];
+    let prompt = PROMPT_MAP(videoSystem)[type] || (type === 'interpolation' ? 'Smooth interpolation from an exploded parts view to a fully assembled product view. Showcase the engineering and fit of the components.' : '');
     if (videoSystem.baseImageUrl) {
       prompt += ' Maintain consistency with the provided image.';
     }
@@ -192,7 +192,7 @@ export default function VideoStudio({ videoSystem, onUpdate }: Props) {
         const type = 'interpolation';
         const task = getTask(type);
         const isLoading = generating[type] ?? false;
-        const prompt = PROMPT_MAP(videoSystem)[type];
+        const prompt = PROMPT_MAP(videoSystem)[type] || 'Smooth interpolation from an exploded parts view to a fully assembled product view.';
 
         return (
           <>
@@ -278,7 +278,7 @@ export default function VideoStudio({ videoSystem, onUpdate }: Props) {
               {task?.status !== 'complete' && !isLoading && (
                 <button
                   onClick={() => handleGenerate(type)}
-                  disabled={!prompt}
+                  disabled={!prompt || !videoSystem.baseImageUrl || !videoSystem.endImageUrl}
                   className="
                     w-full py-2.5 rounded-xl text-sm font-medium
                     bg-accent/10 border border-accent/30 text-accent
