@@ -42,22 +42,25 @@ export default function LoadingOverlay({ visible, step = 0 }: Props) {
   if (!visible) return null;
 
   return (
-    <div className="
-      fixed inset-0 z-50
-      bg-surface-darker/90 backdrop-blur-md
-      flex flex-col items-center justify-center gap-8
-    ">
+    <div
+      className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-8"
+      style={{ background: 'rgb(var(--color-bg) / 0.92)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}
+    >
       {/* Spinning ring */}
       <div
         ref={ringRef}
-        className="w-24 h-24 rounded-full border-4 border-accent/20 border-t-accent"
-        style={{ boxShadow: '0 0 40px 8px rgba(110,231,247,0.15)' }}
+        className="w-20 h-20 rounded-full border-4"
+        style={{
+          borderColor: 'rgba(6,182,212,0.15)',
+          borderTopColor: '#06B6D4',
+          boxShadow: '0 0 40px rgba(6,182,212,0.2)',
+        }}
       />
 
       {/* Title */}
       <div className="text-center">
-        <h2 className="text-2xl font-bold text-white mb-1">Building Your World</h2>
-        <p className="text-sm text-accent animate-pulse-soft">
+        <h2 className="text-xl font-bold text-fg mb-1">Building Your World</h2>
+        <p className="text-sm text-fg-muted animate-pulse-soft">
           {STEPS[Math.min(step, STEPS.length - 1)]}
         </p>
       </div>
@@ -67,9 +70,8 @@ export default function LoadingOverlay({ visible, step = 0 }: Props) {
         {STEPS.map((_, i) => (
           <div
             key={i}
-            className={`w-2 h-2 rounded-full transition-all duration-300 ${
-              i <= step ? 'bg-accent' : 'bg-white/20'
-            }`}
+            className="w-1.5 h-1.5 rounded-full transition-all duration-300"
+            style={{ background: i <= step ? '#06B6D4' : 'rgb(var(--color-border) / 0.2)' }}
           />
         ))}
       </div>

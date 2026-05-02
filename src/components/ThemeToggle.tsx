@@ -1,20 +1,21 @@
 'use client';
 // ─────────────────────────────────────────────────────────────────────────────
-// OWNER: TEAM 1
-// ThemeToggle — sun/moon toggle that writes `dark` class to <html>.
-// Persists selection to localStorage.
+// OWNER: TEAM 1 — ThemeToggle
+// Default: light mode. Persists to localStorage.
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { useEffect, useState } from 'react';
 
 export default function ThemeToggle() {
-  const [dark, setDark] = useState(true);
+  const [dark, setDark] = useState(false);  // default = light
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     const stored = localStorage.getItem('baw_theme');
-    const isDark = stored !== null ? stored === 'dark' : true;
+    const isDark = stored === 'dark';  // only dark if explicitly saved
     setDark(isDark);
     document.documentElement.classList.toggle('dark', isDark);
+    setMounted(true);
   }, []);
 
   const toggle = () => {
@@ -24,20 +25,24 @@ export default function ThemeToggle() {
     localStorage.setItem('baw_theme', next ? 'dark' : 'light');
   };
 
+  if (!mounted) return <div className="w-20 h-8 rounded-full shimmer" />;
+
   return (
     <button
       onClick={toggle}
       aria-label="Toggle theme"
-      className="
-        relative flex items-center gap-2 px-3 py-1.5
-        rounded-full border border-white/10
-        bg-white/5 hover:bg-white/10
-        text-sm font-medium text-white/70 hover:text-white
-        transition-all duration-200
-      "
+      className="relative flex h-8 w-8 items-center justify-center rounded-full transition-all duration-200"
+      style={{
+        background: 'rgb(var(--color-border) / 0.08)',
+        border: '1px solid rgb(var(--color-border) / 0.12)',
+        color: 'rgb(var(--color-fg-muted))',
+      }}
+      onMouseEnter={e => (e.currentTarget.style.color = 'rgb(var(--color-fg))')}
+      onMouseLeave={e => (e.currentTarget.style.color = 'rgb(var(--color-fg-muted))')}
     >
-      <span className="text-base">{dark ? '🌙' : '☀️'}</span>
-      <span className="hidden sm:inline">{dark ? 'Dark' : 'Light'}</span>
+      <span className="text-base leading-none" title={dark ? 'Switch to Light' : 'Switch to Dark'}>
+        {dark ? '☀️' : '🌙'}
+      </span>
     </button>
   );
 }

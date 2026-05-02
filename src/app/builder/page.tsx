@@ -95,10 +95,10 @@ export default function BuilderPage() {
       {world && !loading && (
         <>
           {/* Breadcrumb nav */}
-          <div className="mb-6 flex items-center gap-2 text-xs text-gray-500">
-            <Link href="/" className="hover:text-accent transition-colors">Home</Link>
+          <div className="mb-6 flex items-center gap-2 text-xs" style={{ color: 'rgb(var(--color-fg-muted))' }}>
+            <Link href="/" className="hover:text-fg transition-colors" style={{ color: 'inherit' }}>Home</Link>
             <span>/</span>
-            <span className="text-white">{world.productOverview.productName}</span>
+            <span className="text-fg">{world.productOverview.productName}</span>
             <div className="ml-auto flex gap-2">
               <Link href="/video"        className="btn-ghost text-xs py-1.5 px-3">🎬 Videos</Link>
               <Link href="/gtm"          className="btn-ghost text-xs py-1.5 px-3">🚀 GTM</Link>

@@ -48,74 +48,83 @@ export default function PromptInput() {
   };
 
   return (
-    <div className="prompt-card opacity-0 w-full max-w-2xl mx-auto">
-      {/* Textarea */}
-      <div className="
-        relative rounded-2xl border border-white/10
-        bg-white/5 dark:bg-white/5
-        shadow-glass backdrop-blur-sm
-        focus-within:border-accent/60 transition-all duration-300
-      ">
+    <div className="prompt-card opacity-0 w-full max-w-2xl mx-auto flex flex-col gap-4">
+
+      {/* ── Search-style textarea card ───────────────────────── */}
+      <div
+        className="relative rounded-3xl transition-all duration-300 overflow-hidden"
+        style={{
+          background: 'rgb(var(--color-card))',
+          border: '1.5px solid rgb(var(--color-border) / 0.12)',
+          boxShadow: '0 2px 12px rgb(0 0 0 / 0.06)',
+        }}
+        onFocus={() => {}}
+      >
+        {/* Top: textarea */}
         <textarea
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) handleBuild();
           }}
-          placeholder="Describe your product idea…&#10;e.g. &quot;Create a smart temperature and humidity sensor for modern homes&quot;"
-          rows={4}
-          className="
-            w-full bg-transparent resize-none
-            px-5 pt-5 pb-3
-            text-white placeholder-white/30
-            text-base leading-relaxed
-            focus:outline-none
-            rounded-2xl
-          "
+          placeholder="Describe your product idea…"
+          rows={3}
+          className="w-full bg-transparent resize-none px-6 pt-5 pb-2 text-fg placeholder-fg-muted text-base leading-relaxed focus:outline-none"
+          style={{ color: 'rgb(var(--color-fg))', caretColor: '#06B6D4' }}
         />
 
-        {/* Build button */}
-        <div className="flex justify-end px-4 pb-4">
+        {/* Bottom toolbar */}
+        <div
+          className="flex items-center justify-between px-4 pb-3 pt-1"
+          style={{ borderTop: '1px solid rgb(var(--color-border) / 0.06)' }}
+        >
+          <span className="text-xs" style={{ color: 'rgb(var(--color-fg-muted))' }}>
+            ⌘↵ to build
+          </span>
           <button
             ref={buttonRef}
             onClick={handleBuild}
             disabled={loading || !prompt.trim()}
-            className="
-              px-6 py-2.5 rounded-full
-              bg-accent text-surface-dark dark:bg-accent dark:text-surface-dark
-              font-semibold text-sm
-              disabled:opacity-40 disabled:cursor-not-allowed
-              hover:scale-105 active:scale-95
-              transition-transform duration-150
-              shadow-neon
-            "
+            className="btn-accent"
           >
             {loading ? (
               <span className="flex items-center gap-2">
-                <span className="inline-block w-4 h-4 border-2 border-surface-dark border-t-transparent rounded-full animate-spin" />
+                <span
+                  className="inline-block w-3.5 h-3.5 rounded-full border-2 border-white/30 border-t-white"
+                  style={{ animation: 'spin 0.7s linear infinite' }}
+                />
                 Building…
               </span>
             ) : (
-              '⚡ Build My World'
+              <span className="flex items-center gap-1.5">
+                <span>⚡</span>
+                <span>Build My World</span>
+              </span>
             )}
           </button>
         </div>
       </div>
 
-      {/* Example prompt chips */}
-      <div className="mt-4 flex flex-wrap gap-2 justify-center">
+      {/* ── Example chips ────────────────────────────────────── */}
+      <div className="flex flex-wrap gap-2 justify-center">
         {EXAMPLE_PROMPTS.map((ex) => (
           <button
             key={ex}
             onClick={() => setPrompt(ex)}
-            className="
-              px-3 py-1.5 rounded-full text-xs
-              border border-white/10
-              bg-white/5 hover:bg-white/10
-              text-white/60 hover:text-white
-              transition-all duration-200
-              text-left
-            "
+            className="px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 cursor-pointer"
+            style={{
+              background: 'rgb(var(--color-border) / 0.06)',
+              border: '1px solid rgb(var(--color-border) / 0.1)',
+              color: 'rgb(var(--color-fg-muted))',
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.background = 'rgb(var(--color-border) / 0.12)';
+              e.currentTarget.style.color = 'rgb(var(--color-fg))';
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.background = 'rgb(var(--color-border) / 0.06)';
+              e.currentTarget.style.color = 'rgb(var(--color-fg-muted))';
+            }}
           >
             {ex}
           </button>
@@ -124,3 +133,4 @@ export default function PromptInput() {
     </div>
   );
 }
+

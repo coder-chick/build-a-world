@@ -66,12 +66,12 @@ export default function GTMPage() {
       {!loading && world && (
         <>
           {/* Breadcrumb */}
-          <div className="mb-6 flex items-center gap-2 text-xs text-gray-500">
-            <Link href="/"        className="hover:text-accent transition-colors">Home</Link>
+          <div className="mb-6 flex items-center gap-2 text-xs" style={{ color: 'rgb(var(--color-fg-muted))' }}>
+            <Link href="/"        className="hover:text-fg transition-colors" style={{ color: 'inherit' }}>Home</Link>
             <span>/</span>
-            <Link href="/builder" className="hover:text-accent transition-colors">Builder</Link>
+            <Link href="/builder" className="hover:text-fg transition-colors" style={{ color: 'inherit' }}>Builder</Link>
             <span>/</span>
-            <span className="text-white">GTM + Social</span>
+            <span className="text-fg">GTM + Social</span>
             <div className="ml-auto flex gap-2">
               <Link href="/video"        className="btn-ghost text-xs py-1.5 px-3">🎬 Videos</Link>
               <Link href="/architecture" className="btn-ghost text-xs py-1.5 px-3">🔭 Architecture</Link>
@@ -79,12 +79,10 @@ export default function GTMPage() {
           </div>
 
           <div className="mb-6">
-            <h1 className="text-2xl font-bold text-white">
-              🚀 GTM + Social — <span className="text-accent">{world.productOverview.productName}</span>
+            <h1 className="text-2xl font-bold text-fg">
+              🚀 GTM + Social — <span className="text-gradient">{world.productOverview.productName}</span>
             </h1>
-            <p className="text-sm text-gray-400 mt-1">
-              Go-to-market strategy, messaging, and live Twitter launch
-            </p>
+            <p className="text-sm text-fg-muted mt-1">Go-to-market strategy, messaging, and live Twitter launch</p>
           </div>
 
           {copied && (
@@ -95,7 +93,7 @@ export default function GTMPage() {
 
           <div className="flex flex-col gap-8">
             <section>
-              <h2 className="text-lg font-semibold text-white mb-4">📋 GTM Kit</h2>
+              <h2 className="text-lg font-semibold text-fg mb-4">📋 GTM Kit</h2>
               <GTMKit
                 gtmKit={world.gtmKit}
                 onSelectPost={handleSelectPost}
@@ -104,7 +102,7 @@ export default function GTMPage() {
             </section>
 
             <section>
-              <h2 className="text-lg font-semibold text-white mb-4">📊 Social Launch Results</h2>
+              <h2 className="text-lg font-semibold text-fg mb-4">📊 Social Launch Results</h2>
               <SocialLaunch
                 gtmKit={world.gtmKit}
                 social={world.social}

@@ -2,64 +2,76 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import ThemeToggle from '@/components/ThemeToggle';
+import NavClient from '@/components/NavClient';
 import Link from 'next/link';
+import { NAV_LINKS } from '@/lib/nav';
 
-const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-inter',
+  display: 'swap',
+});
 
 export const metadata: Metadata = {
-  title: 'Build-A-World | AI Product Lifecycle Engine',
+  title: 'Build-A-World — AI Product Lifecycle Engine',
   description:
     'Transform any product idea into a fully visualised, market-ready world — powered by 8 AI agents.',
 };
 
-const NAV_LINKS = [
-  { href: '/',             label: 'Home'         },
-  { href: '/builder',      label: 'Builder'      },
-  { href: '/video',        label: 'Video Studio' },
-  { href: '/gtm',          label: 'GTM + Social' },
-  { href: '/architecture', label: 'Architecture' },
-];
-
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.variable} font-sans min-h-screen bg-surface-dark text-gray-100`}>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function(){
+                try {
+                  var t = localStorage.getItem('baw_theme');
+                  if (t === 'dark') document.documentElement.classList.add('dark');
+                } catch(e) {}
+              })()
+            `,
+          }}
+        />
+      </head>
+      <body className={`${inter.variable} font-sans min-h-screen bg-bg text-fg`}>
+
         {/* ── Top nav ─────────────────────────────────────────────── */}
-        <header className="sticky top-0 z-40 w-full border-b border-white/5 bg-surface-dark/90 backdrop-blur-md">
-          <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4">
+        <header
+          className="sticky top-0 z-40 w-full"
+          style={{ background: 'var(--nav-blur-bg)', borderBottom: '1px solid rgb(var(--color-border) / 0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}
+        >
+          <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5">
+
             {/* Logo */}
-            <Link href="/" className="flex items-center gap-2 font-bold tracking-tight">
-              <span className="text-xl">🌍</span>
-              <span className="text-white">Build-A-</span>
-              <span className="text-accent">World</span>
+            <Link href="/" className="flex items-center gap-2.5 font-bold tracking-tight select-none group">
+              <span className="text-2xl transition-transform duration-300 group-hover:scale-110">🌍</span>
+              <span className="text-fg font-extrabold text-lg tracking-tight">
+                Build-A-<span className="text-gradient">World</span>
+              </span>
             </Link>
 
-            {/* Nav links */}
-            <nav className="hidden md:flex items-center gap-1">
-              {NAV_LINKS.map(({ href, label }) => (
-                <Link
-                  key={href}
-                  href={href}
-                  className="rounded-lg px-3 py-1.5 text-sm text-gray-400 transition-colors hover:bg-white/5 hover:text-white"
-                >
-                  {label}
-                </Link>
-              ))}
-            </nav>
+            {/* Desktop nav links */}
+            <NavClient links={NAV_LINKS} />
 
-            {/* Theme toggle */}
-            <ThemeToggle />
+            {/* Right actions */}
+            <div className="flex items-center gap-2">
+              <ThemeToggle />
+            </div>
           </div>
         </header>
 
         {/* ── Page content ────────────────────────────────────────── */}
-        <main className="mx-auto max-w-7xl px-4 py-8">
+        <main className="mx-auto max-w-7xl px-5 py-10">
           {children}
         </main>
 
         {/* ── Footer ──────────────────────────────────────────────── */}
-        <footer className="border-t border-white/5 py-6 text-center text-xs text-gray-600">
-          Build-A-World · Powered by Z.AI, Seedance, Butterbase &amp; Twitter/X · Hackathon 2025
+        <footer className="mt-20 py-8 text-center" style={{ borderTop: '1px solid rgb(var(--color-border) / 0.08)' }}>
+          <p className="text-fg-muted text-xs">
+            Build-A-World &middot; Powered by Z.AI, Seedance 2.0, Butterbase &amp; Twitter/X &middot; Hackathon 2025
+          </p>
         </footer>
       </body>
     </html>
