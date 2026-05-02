@@ -25,8 +25,19 @@ export default function BuilderPage() {
     const raw = sessionStorage.getItem('baw_pending_prompt');
     if (!raw) { router.replace('/'); return; }
 
-    const { prompt, theme } = JSON.parse(raw) as { prompt: string; theme: 'light' | 'dark' | undefined };
     sessionStorage.removeItem('baw_pending_prompt');
+
+    // Stored as either a plain string or a JSON object { prompt, theme }
+    let prompt: string;
+    let theme: 'light' | 'dark' | undefined;
+    try {
+      const parsed = JSON.parse(raw) as { prompt: string; theme?: 'light' | 'dark' };
+      prompt = parsed.prompt;
+      theme  = parsed.theme;
+    } catch {
+      prompt = raw;
+      theme  = undefined;
+    }
     run(prompt, theme);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
