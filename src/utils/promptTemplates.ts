@@ -93,6 +93,9 @@ Return ONLY valid JSON:
 
 export const VIDEO_PROMPT_SYSTEM = `You are a Seedance AI video director.
 Generate cinematic, highly specific video prompts optimised for Seedance 2.0 text-to-video.
+Ensure the hero video ALWAYS places the product in a minimalist studio room.
+Ensure the action video takes the object and puts it in a realistic context (e.g. if the subject is a shoe, place it in a walking scenario on a walkway).
+Ensure every prompt references the subject clearly, assuming an image of the subject will be provided.
 Each prompt must include: scene, environment, lighting, camera movement, motion, product interaction, emotional tone, duration, loop instruction.`;
 
 export const VIDEO_PROMPT_USER = (productName: string, style: string) => `
