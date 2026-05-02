@@ -46,7 +46,7 @@ export interface VisualSystem {
   componentPrompts: string[];
 }
 
-export type VideoType = 'hero' | 'action' | 'artistic' | 'animated';
+export type VideoType = 'hero' | 'action' | 'artistic' | 'animated' | 'interpolation';
 export type VideoStatus = 'idle' | 'pending' | 'processing' | 'complete' | 'failed';
 
 export interface VideoTask {
@@ -54,6 +54,7 @@ export interface VideoTask {
   type: VideoType;
   prompt: string;
   imageUrl?: string;
+  endImageUrl?: string;
   status: VideoStatus;
   url?: string;
   thumbnailUrl?: string;
@@ -66,7 +67,9 @@ export interface VideoSystem {
   artisticVideoPrompt: string;
   animatedVideoPrompt: string;
   simulated3DTurnaroundPrompt: string;
+  interpolationVideoPrompt: string;
   baseImageUrl?: string;
+  endImageUrl?: string;
   videoTasks: VideoTask[];
 }
 

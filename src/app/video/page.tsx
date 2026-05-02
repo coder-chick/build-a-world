@@ -74,6 +74,7 @@ export default function VideoPage() {
                     artisticVideoPrompt: 'Abstract artistic interpretation of the product in the provided image. Neon cyberpunk aesthetics, fast cuts.',
                     animatedVideoPrompt: 'Stylized 2D anime animation that prominently showcases and features the product in the provided image. Vibrant colors, expressive cartoony motion highlights, dynamic action, safe for work, and family-friendly content only.',
                     simulated3DTurnaroundPrompt: '',
+                    interpolationVideoPrompt: 'Smooth interpolation from an exploded parts view to a fully assembled product view. Showcase the engineering and fit of the components.',
                     videoTasks: []
                   },
                   gtmKit: {} as any,

@@ -17,6 +17,7 @@ const DEFAULT_MODELS: Record<VideoType, string> = {
   action: 'seedance-1-0-pro-250528',
   artistic: 'dreamina-seedance-2-0-260128',
   animated: 'dreamina-seedance-2-0-260128',
+  interpolation: 'dreamina-seedance-2-0-260128',
 };
 
 export interface SeedanceTaskResponse {
@@ -75,7 +76,8 @@ function extractVideoUrl(data: any): string | undefined {
 export async function createVideoTask(
   type: VideoType,
   prompt: string,
-  imageUrl?: string
+  imageUrl?: string,
+  endImageUrl?: string
 ): Promise<{ taskId: string }> {
   const key = process.env.SEEDANCE_API_KEY;
   if (!key) throw new Error('SEEDANCE_API_KEY not set');
@@ -92,6 +94,14 @@ export async function createVideoTask(
       type: 'image_url',
       image_url: { url: imageUrl },
       role: 'first_frame',
+    });
+  }
+  
+  if (endImageUrl) {
+    content.push({
+      type: 'image_url',
+      image_url: { url: endImageUrl },
+      role: 'last_frame',
     });
   }
 
@@ -155,7 +165,8 @@ export async function getVideoResult(taskId: string): Promise<{ url: string }> {
 export async function mockVideoTask(
   type: VideoType,
   prompt: string,
-  imageUrl?: string
+  imageUrl?: string,
+  endImageUrl?: string
 ): Promise<VideoTask> {
   // Simulate a 3-second generation delay
   await new Promise((r) => setTimeout(r, 3000));
@@ -165,6 +176,7 @@ export async function mockVideoTask(
     type,
     prompt,
     imageUrl,
+    endImageUrl,
     status: 'complete',
     // Demo placeholder thumbnail — replace with real poster image if desired
     thumbnailUrl: imageUrl || `https://placehold.co/640x360/0F1117/6EE7F7?text=${encodeURIComponent(type.toUpperCase() + ' VIDEO')}`,
@@ -177,14 +189,15 @@ export async function mockVideoTask(
 export async function generateVideo(
   type: VideoType,
   prompt: string,
-  imageUrl?: string
+  imageUrl?: string,
+  endImageUrl?: string
 ): Promise<VideoTask> {
   if (MOCK_MODE) {
-    return mockVideoTask(type, prompt, imageUrl);
+    return mockVideoTask(type, prompt, imageUrl, endImageUrl);
   }
 
   try {
-    const { taskId } = await createVideoTask(type, prompt, imageUrl);
+    const { taskId } = await createVideoTask(type, prompt, imageUrl, endImageUrl);
 
     if (!taskId) {
       throw new Error('Seedance create task did not return a task id');
@@ -195,7 +208,7 @@ export async function generateVideo(
       await new Promise((r) => setTimeout(r, 5000));
       const result = await pollVideoTask(taskId);
       if (result.status === 'complete' && result.url) {
-        return { id: taskId, type, prompt, imageUrl, status: 'complete', url: result.url };
+        return { id: taskId, type, prompt, imageUrl, endImageUrl, status: 'complete', url: result.url };
       }
       if (result.status === 'failed') {
         return {
