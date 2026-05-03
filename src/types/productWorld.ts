@@ -40,6 +40,14 @@ export type VisualizationView = 'product' | 'knolling' | 'exploded';
 
 export type ImageGenStatus = 'idle' | 'generating' | 'complete' | 'failed';
 
+export interface EnvironmentPreset {
+  id: string;
+  name: string;
+  description: string;
+  promptSuffix: string;
+  gradient: string;
+}
+
 export interface VisualSystem {
   currentView: VisualizationView;
   productViewPrompt: string;
@@ -50,9 +58,15 @@ export interface VisualSystem {
   knollingViewImageUrl?: string;
   explodedViewImageUrl?: string;
   imageGenStatus?: ImageGenStatus;
+  generatedImages?: {
+    product?: string;
+    knolling?: string;
+    exploded?: string;
+  };
+  selectedEnvironment?: string;
 }
 
-export type VideoType = 'hero' | 'action' | 'artistic' | 'animated';
+export type VideoType = 'hero' | 'action' | 'artistic' | 'animated' | 'exploded' | 'interpolation';
 export type VideoStatus = 'idle' | 'pending' | 'processing' | 'complete' | 'failed';
 
 export interface VideoTask {
@@ -64,6 +78,9 @@ export interface VideoTask {
   url?: string;
   thumbnailUrl?: string;
   errorMessage?: string;
+  firstFrameImageUrl?: string;
+  environmentId?: string;
+  savedAt?: string;
 }
 
 export interface VideoSystem {
@@ -71,6 +88,8 @@ export interface VideoSystem {
   actionVideoPrompt: string;
   artisticVideoPrompt: string;
   animatedVideoPrompt: string;
+  explodedViewVideoPrompt?: string;
+  interpolationVideoPrompt?: string;
   simulated3DTurnaroundPrompt: string;
   baseImageUrl?: string;
   videoTasks: VideoTask[];

@@ -17,6 +17,8 @@ const DEFAULT_MODELS: Record<VideoType, string> = {
   action: 'seedance-1-0-pro-250528',
   artistic: 'dreamina-seedance-2-0-260128',
   animated: 'dreamina-seedance-2-0-260128',
+  exploded: 'seedance-1-0-pro-250528',
+  interpolation: 'seedance-1-0-pro-250528',
 };
 
 export interface SeedanceTaskResponse {

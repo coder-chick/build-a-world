@@ -2,13 +2,26 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // OWNER: TEAM 1
 // ProductVisualizer — center panel showing product/knolling/exploded views
-// with anime.js cross-fade transitions between views.
+// with anime.js cross-fade transitions, regenerate/download/copy actions,
+// and interactive component chips for exploded view.
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { useEffect, useRef, useState } from 'react';
 import anime from 'animejs';
-import { VisualSystem, VisualizationView } from '@/types/productWorld';
+import { VisualSystem, VisualizationView, ProductComponent } from '@/types/productWorld';
 import ViewToggle from './ViewToggle';
+
+const VIEW_LABELS: Record<VisualizationView, string> = {
+  product: 'Product Render',
+  knolling: 'Knolling View',
+  exploded: 'Exploded View',
+};
+
+const VIEW_EMOJIS: Record<VisualizationView, string> = {
+  product: '📷',
+  knolling: '🔲',
+  exploded: '💥',
+};
 
 const LOADING_STEPS = [
   'Analysing product design...',
@@ -22,15 +35,24 @@ const LOADING_STEPS = [
 interface Props {
   visualSystem: VisualSystem;
   productName: string;
+  components?: ProductComponent[];
   onViewChange: (view: VisualizationView) => void;
+  onRegenerate?: () => void;
 }
 
-export default function ProductVisualizer({ visualSystem, productName, onViewChange }: Props) {
+export default function ProductVisualizer({
+  visualSystem,
+  productName,
+  components = [],
+  onViewChange,
+  onRegenerate,
+}: Props) {
   const viewRef = useRef<HTMLDivElement>(null);
   const prev = useRef<VisualizationView>(visualSystem.currentView);
   const prevUrl = useRef<string | undefined>(undefined);
   const [imageLoaded, setImageLoaded] = useState(false);
   const [loadingStep, setLoadingStep] = useState(0);
+  const [activeComponent, setActiveComponent] = useState<string | null>(null);
 
   const imageMap: Record<VisualizationView, string | undefined> = {
     product: visualSystem.productViewImageUrl,
@@ -39,7 +61,6 @@ export default function ProductVisualizer({ visualSystem, productName, onViewCha
   };
   const currentImageUrl = imageMap[visualSystem.currentView];
 
-  // Reset imageLoaded when the view changes OR when a new URL arrives
   useEffect(() => {
     const viewChanged = prev.current !== visualSystem.currentView;
     const urlChanged = prevUrl.current !== currentImageUrl;
@@ -50,18 +71,20 @@ export default function ProductVisualizer({ visualSystem, productName, onViewCha
       prevUrl.current = currentImageUrl;
     }
 
-    if (viewChanged && viewRef.current) {
-      anime({
-        targets: viewRef.current,
-        opacity: [0, 1],
-        translateY: [12, 0],
-        duration: 400,
-        easing: 'easeOutQuad',
-      });
+    if (viewChanged) {
+      setActiveComponent(null);
+      if (viewRef.current) {
+        anime({
+          targets: viewRef.current,
+          opacity: [0, 1],
+          translateY: [10, 0],
+          duration: 380,
+          easing: 'easeOutQuad',
+        });
+      }
     }
   }, [visualSystem.currentView, currentImageUrl]);
 
-  // Cycle through loading step messages while generating
   useEffect(() => {
     if (visualSystem.imageGenStatus !== 'generating') {
       setLoadingStep(0);
@@ -74,115 +97,156 @@ export default function ProductVisualizer({ visualSystem, productName, onViewCha
   }, [visualSystem.imageGenStatus]);
 
   const isGenerating = visualSystem.imageGenStatus === 'generating' && !currentImageUrl;
+  const isExploded = visualSystem.currentView === 'exploded';
+  const activeDesc = isExploded && activeComponent
+    ? (components.find(c => c.name === activeComponent)?.options[0]?.visualDescription ?? '')
+    : '';
 
   return (
-    <div className="flex flex-col gap-4 items-center w-full">
+    <div className="flex flex-col gap-4 items-center w-full max-w-lg">
       <ViewToggle current={visualSystem.currentView} onChange={onViewChange} />
 
+      {/* Main visualization area */}
       <div
         ref={viewRef}
-        className="
-          w-full aspect-square max-w-lg
-          rounded-2xl border border-[rgb(var(--color-border))]
-          bg-white
-          overflow-hidden relative
-          flex items-center justify-center
-          shadow-sm
-        "
+        className="relative w-full aspect-square rounded-2xl overflow-hidden"
+        style={{
+          border: '1px solid rgb(var(--color-border) / 0.15)',
+          background: 'rgb(var(--color-card))',
+          boxShadow: '0 8px 32px rgba(0,0,0,0.16)',
+        }}
       >
-        {isGenerating && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-white z-10">
-            {/* Shimmer skeleton */}
-            <div className="absolute inset-0 overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-r from-gray-100 via-gray-200 to-gray-100 animate-pulse" />
-              <div
-                className="absolute inset-0"
-                style={{
-                  background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.6) 50%, transparent 100%)',
-                  animation: 'shimmer 2s infinite',
-                }}
-              />
-            </div>
-
-            {/* Content overlay */}
-            <div className="relative z-10 flex flex-col items-center gap-4">
-              <div className="relative">
-                <div className="w-14 h-14 rounded-full border-[3px] border-[rgb(var(--color-accent))]/20 flex items-center justify-center">
-                  <div className="w-14 h-14 absolute border-[3px] border-transparent border-t-[rgb(var(--color-accent))] rounded-full animate-spin" />
-                  <span className="text-2xl">
-                    {visualSystem.currentView === 'product' && '📷'}
-                    {visualSystem.currentView === 'knolling' && '📐'}
-                    {visualSystem.currentView === 'exploded' && '💥'}
-                  </span>
-                </div>
-              </div>
-              <div className="flex flex-col items-center gap-1.5">
-                <p className="text-sm font-medium text-gray-700">
-                  Building product visuals
-                </p>
-                <p className="text-xs text-gray-400 transition-opacity duration-500">
-                  {LOADING_STEPS[loadingStep]}
-                </p>
-              </div>
-              {/* Progress dots */}
-              <div className="flex gap-1.5 mt-1">
-                {[0, 1, 2].map(i => (
-                  <div
-                    key={i}
-                    className="w-1.5 h-1.5 rounded-full bg-[rgb(var(--color-accent))]"
-                    style={{
-                      animation: `pulse 1.4s ease-in-out ${i * 0.2}s infinite`,
-                      opacity: 0.3,
-                    }}
-                  />
-                ))}
-              </div>
-            </div>
-
-            <style jsx>{`
-              @keyframes shimmer {
-                0% { transform: translateX(-100%); }
-                100% { transform: translateX(100%); }
-              }
-              @keyframes pulse {
-                0%, 100% { opacity: 0.3; transform: scale(1); }
-                50% { opacity: 1; transform: scale(1.3); }
-              }
-            `}</style>
-          </div>
-        )}
-
-        {currentImageUrl ? (
+        {/* Generated image */}
+        {currentImageUrl && (
           <>
             {!imageLoaded && (
-              <div className="absolute inset-0 flex items-center justify-center bg-white">
-                <div className="w-8 h-8 border-2 border-[rgb(var(--color-accent))] border-t-transparent rounded-full animate-spin" />
+              <div className="absolute inset-0 flex items-center justify-center z-10"
+                style={{ background: 'rgba(15,17,23,0.72)', backdropFilter: 'blur(4px)' }}>
+                <div className="w-10 h-10 rounded-full border-2 border-accent/30 border-t-accent animate-spin" />
               </div>
             )}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={currentImageUrl}
-              alt={`${productName} - ${visualSystem.currentView} view`}
-              className={`w-full h-full object-contain transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
+              alt={`${productName} — ${VIEW_LABELS[visualSystem.currentView]}`}
+              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
               onLoad={() => setImageLoaded(true)}
               onError={() => setImageLoaded(true)}
             />
           </>
-        ) : !isGenerating && (
-          <div className="flex flex-col items-center gap-3 text-[rgb(var(--color-fg-muted))]">
-            <div className="text-6xl opacity-30">
-              {visualSystem.currentView === 'product' && '📷'}
-              {visualSystem.currentView === 'knolling' && '📐'}
-              {visualSystem.currentView === 'exploded' && '💥'}
-            </div>
-            <p className="text-sm">No image generated yet</p>
+        )}
+
+        {/* Prompt fallback when no image and not generating */}
+        {!currentImageUrl && !isGenerating && (
+          <div
+            className="absolute inset-0 flex flex-col items-center justify-center gap-4 p-6"
+            style={{ background: 'linear-gradient(135deg, rgb(var(--color-card)) 0%, rgb(var(--color-bg)) 100%)' }}
+          >
+            <span className="text-4xl">{VIEW_EMOJIS[visualSystem.currentView]}</span>
+            <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: 'rgb(var(--color-fg-muted))' }}>
+              {VIEW_LABELS[visualSystem.currentView]}
+            </p>
+            <span className="text-[10px] px-2 py-0.5 rounded-full bg-accent/20 text-accent">
+              Waiting for generation...
+            </span>
           </div>
         )}
+
+        {/* Generating spinner overlay */}
+        {isGenerating && (
+          <div
+            className="absolute inset-0 flex flex-col items-center justify-center gap-3 z-10"
+            style={{ background: 'rgba(15,17,23,0.72)', backdropFilter: 'blur(4px)' }}
+          >
+            <div className="w-10 h-10 rounded-full border-2 border-accent/30 border-t-accent animate-spin" />
+            <p className="text-xs font-medium text-accent">Generating image…</p>
+            <p className="text-[10px] text-white/50 transition-opacity duration-500">
+              {LOADING_STEPS[loadingStep]}
+            </p>
+          </div>
+        )}
+
+        {/* Action buttons (top-right) */}
+        {currentImageUrl && !isGenerating && imageLoaded && (
+          <div className="absolute top-3 right-3 flex gap-2 z-20">
+            {/* Regenerate */}
+            {onRegenerate && (
+              <button
+                onClick={onRegenerate}
+                className="w-8 h-8 rounded-full flex items-center justify-center transition-all hover:scale-110 active:scale-95"
+                style={{ background: 'rgba(6,182,212,0.15)', border: '1px solid rgba(6,182,212,0.35)', color: '#06B6D4' }}
+                title="Regenerate"
+              >
+                ↻
+              </button>
+            )}
+            {/* Download */}
+            <a
+              href={currentImageUrl}
+              download={`${productName}-${visualSystem.currentView}.jpg`}
+              className="w-8 h-8 rounded-full flex items-center justify-center transition-all hover:scale-110 active:scale-95 text-sm no-underline"
+              style={{ background: 'rgba(6,182,212,0.15)', border: '1px solid rgba(6,182,212,0.35)', color: '#06B6D4' }}
+              title="Download image"
+            >
+              ⬇
+            </a>
+            {/* Copy URL */}
+            <button
+              onClick={() => navigator.clipboard.writeText(currentImageUrl)}
+              className="w-8 h-8 rounded-full flex items-center justify-center transition-all hover:scale-110 active:scale-95 text-xs"
+              style={{ background: 'rgba(6,182,212,0.15)', border: '1px solid rgba(6,182,212,0.35)', color: '#06B6D4' }}
+              title="Copy image URL"
+            >
+              📋
+            </button>
+          </div>
+        )}
+
+        {/* Neon corner accents */}
+        <div className="pointer-events-none absolute top-0 left-0 w-12 h-12 rounded-tl-2xl border-t-2 border-l-2 border-accent/30" />
+        <div className="pointer-events-none absolute bottom-0 right-0 w-12 h-12 rounded-br-2xl border-b-2 border-r-2 border-accent/30" />
       </div>
 
-      <p className="text-lg font-semibold tracking-tight text-[rgb(var(--color-fg))]">
+      {/* Product name + view label */}
+      <p className="text-base font-semibold tracking-tight" style={{ color: 'rgb(var(--color-fg))' }}>
         {productName}
+        <span className="ml-2 text-xs font-normal" style={{ color: 'rgb(var(--color-fg-muted))' }}>
+          — {VIEW_LABELS[visualSystem.currentView]}
+        </span>
       </p>
+
+      {/* Interactive component chips (exploded view only) */}
+      {isExploded && components.length > 0 && (
+        <div className="w-full flex flex-col gap-2">
+          <p className="text-[10px] uppercase tracking-widest font-semibold" style={{ color: 'rgb(var(--color-fg-muted))' }}>
+            Tap a component to inspect
+          </p>
+          <div className="flex flex-wrap gap-1.5">
+            {components.map(comp => (
+              <button
+                key={comp.name}
+                onClick={() => setActiveComponent(activeComponent === comp.name ? null : comp.name)}
+                className="px-2.5 py-1 rounded-full text-xs font-medium border transition-all duration-150"
+                style={
+                  activeComponent === comp.name
+                    ? { background: '#06B6D4', color: '#fff', borderColor: '#06B6D4', boxShadow: '0 0 10px rgba(6,182,212,0.4)', transform: 'scale(1.05)' }
+                    : { background: 'rgb(var(--color-card))', color: 'rgb(var(--color-fg))', borderColor: 'rgb(var(--color-border) / 0.3)' }
+                }
+              >
+                {comp.name}
+              </button>
+            ))}
+          </div>
+          {activeComponent && activeDesc && (
+            <div
+              className="rounded-xl p-3 text-xs leading-relaxed"
+              style={{ background: 'rgb(var(--color-card))', border: '1px solid rgba(6,182,212,0.25)', color: 'rgb(var(--color-fg))' }}
+            >
+              <span className="font-semibold text-accent">{activeComponent}:</span> {activeDesc}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

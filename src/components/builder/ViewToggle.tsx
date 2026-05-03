@@ -19,21 +19,23 @@ const VIEWS: { id: VisualizationView; label: string }[] = [
 
 export default function ViewToggle({ current, onChange }: Props) {
   return (
-    <div className="
-      inline-flex rounded-full p-1
-      bg-white/5 border border-white/10
-    ">
+    <div
+      className="inline-flex rounded-full p-1"
+      style={{
+        background: 'rgb(var(--color-bg))',
+        border: '1px solid rgb(var(--color-border) / 0.3)',
+      }}
+    >
       {VIEWS.map((v) => (
         <button
           key={v.id}
           onClick={() => onChange(v.id)}
-          className={`
-            px-4 py-1.5 rounded-full text-sm font-medium
-            transition-all duration-200
-            ${current === v.id
-              ? 'bg-accent text-surface-dark shadow-neon'
-              : 'text-white/50 hover:text-white'}
-          `}
+          className="px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200"
+          style={
+            current === v.id
+              ? { background: '#06B6D4', color: '#0F1117', boxShadow: '0 0 10px rgba(6,182,212,0.4)' }
+              : { color: 'rgb(var(--color-fg-muted))', background: 'transparent' }
+          }
         >
           {v.label}
         </button>

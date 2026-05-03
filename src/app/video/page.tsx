@@ -130,7 +130,12 @@ export default function VideoPage() {
         </p>
       </div>
 
-      <VideoStudio videoSystem={world.videoSystem} onUpdate={handleVideoUpdate} />
+      <VideoStudio
+        videoSystem={world.videoSystem}
+        onUpdate={handleVideoUpdate}
+        selectedEnvironmentId={world.visualSystem.selectedEnvironment}
+        productImageUrl={world.visualSystem.productViewImageUrl}
+      />
 
       {/* Next button */}
       <div className="mt-10 flex justify-center">
