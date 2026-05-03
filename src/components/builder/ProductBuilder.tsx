@@ -1,14 +1,13 @@
 'use client';
 // ─────────────────────────────────────────────────────────────────────────────
 // OWNER: TEAM 1
-// ProductBuilder — 3-column dashboard shell.
-// Assembles left (CustomizationPanel + StyleSelector),
-// center (ProductVisualizer), right (product overview).
+// ProductBuilder — 2-column layout: left (customization panel),
+// center (ProductVisualizer with product images).
+// Right panel (product info) integrated below the image on mobile.
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { ProductWorld, VisualizationView } from '@/types/productWorld';
 import CustomizationPanel from './CustomizationPanel';
-import StyleSelector from './StyleSelector';
 import ProductVisualizer from './ProductVisualizer';
 
 interface Props {
@@ -28,107 +27,62 @@ export default function ProductBuilder({
   onViewChange,
   onRegenerate,
 }: Props) {
-  const { productOverview, selectedStyle, styles, visualSystem } = productWorld;
-  const selectedStyleObj = styles.find((s) => s.name === selectedStyle);
+  const { productOverview, visualSystem } = productWorld;
+
+  const handleComponentChange = (name: string, value: string) => {
+    if (name === '__style__') {
+      onStyleChange(value);
+    } else {
+      onComponentChange(name, value);
+    }
+  };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr_280px] gap-6 w-full">
+    <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-6 w-full">
 
       {/* ── LEFT PANEL ──────────────────────────────────────────────────────── */}
       <aside className="
-        glass-card flex flex-col gap-8 p-5
-        rounded-2xl border border-white/10 bg-white/5
+        card flex flex-col gap-6 p-5
+        rounded-2xl border border-[rgb(var(--color-border))]
+        bg-[rgb(var(--color-card))]
+        h-fit lg:sticky lg:top-24
       ">
         <CustomizationPanel
           productWorld={productWorld}
-          onComponentChange={onComponentChange}
+          onComponentChange={handleComponentChange}
           onRegenerate={onRegenerate}
           loading={loading}
-        />
-        <StyleSelector
-          styles={styles}
-          selected={selectedStyle}
-          onSelect={onStyleChange}
         />
       </aside>
 
       {/* ── CENTER PANEL ────────────────────────────────────────────────────── */}
-      <main className="flex items-start justify-center pt-2">
+      <main className="flex flex-col items-center gap-6">
         <ProductVisualizer
           visualSystem={visualSystem}
           productName={productOverview.productName}
           onViewChange={onViewChange}
         />
-      </main>
 
-      {/* ── RIGHT PANEL ─────────────────────────────────────────────────────── */}
-      <aside className="
-        glass-card flex flex-col gap-5 p-5
-        rounded-2xl border border-white/10 bg-white/5
-      ">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-widest text-white/40 mb-1">
-            Product
-          </p>
-          <h2 className="text-xl font-bold text-white leading-tight">
-            {productOverview.productName}
-          </h2>
-          <p className="text-sm text-accent mt-1 italic">{productOverview.tagline}</p>
-        </div>
-
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-widest text-white/40 mb-2">
-            Target User
-          </p>
-          <p className="text-sm text-white/70 leading-relaxed">{productOverview.targetUser}</p>
-        </div>
-
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-widest text-white/40 mb-2">
-            Key Features
-          </p>
-          <ul className="flex flex-col gap-1.5">
-            {productOverview.keyFeatures.map((f) => (
-              <li key={f} className="flex items-start gap-2 text-sm text-white/70">
-                <span className="mt-0.5 text-accent">✦</span>
-                <span>{f}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-widest text-white/40 mb-2">
-            Breakthrough Innovation
-          </p>
-          <p className="text-sm text-white/70 leading-relaxed">
-            {productOverview.breakthroughInnovation}
-          </p>
-        </div>
-
-        {selectedStyleObj && (
+        {/* Product info below the image */}
+        <div className="w-full max-w-lg space-y-4 px-2">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-widest text-white/40 mb-2">
-              Applied Style
+            <p className="text-sm text-[rgb(var(--color-fg-muted))]">
+              {productOverview.tagline}
             </p>
-            <div className="rounded-xl bg-white/5 px-3 py-2.5 text-xs text-white/60 space-y-1">
-              <p><span className="text-white/80 font-medium">Style:</span> {selectedStyleObj.name}</p>
-              <p><span className="text-white/80 font-medium">Feel:</span> {selectedStyleObj.productFeel}</p>
-              <p><span className="text-white/80 font-medium">Lighting:</span> {selectedStyleObj.lightingDirection}</p>
-              <div className="flex gap-1 pt-1">
-                {selectedStyleObj.colorPalette.map((hex) => (
-                  <div
-                    key={hex}
-                    className="w-5 h-5 rounded-full border border-white/20"
-                    style={{ background: hex }}
-                    title={hex}
-                  />
-                ))}
-              </div>
-            </div>
           </div>
-        )}
-      </aside>
+
+          <div className="flex flex-wrap gap-2">
+            {productOverview.keyFeatures.slice(0, 4).map((f) => (
+              <span
+                key={f}
+                className="text-xs px-2.5 py-1 rounded-full bg-[rgb(var(--color-accent))]/10 text-[rgb(var(--color-accent))] font-medium"
+              >
+                {f}
+              </span>
+            ))}
+          </div>
+        </div>
+      </main>
     </div>
   );
 }

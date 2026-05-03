@@ -74,7 +74,8 @@ export default function VideoStudio({ videoSystem, onUpdate }: Props) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5 w-full">
         {VIDEO_CONFIG.map(({ type, label, emoji }) => {
         const task     = getTask(type);
-        const isLoading = generating[type] ?? false;
+        const isBackgroundLoading = task?.status === 'pending' || task?.status === 'processing';
+        const isLoading = (generating[type] ?? false) || isBackgroundLoading;
         const prompt   = PROMPT_MAP(videoSystem)[type];
 
         return (
@@ -135,11 +136,15 @@ export default function VideoStudio({ videoSystem, onUpdate }: Props) {
             )}
 
             {/* Loading state */}
-            {isLoading && (
+            {isLoading && task?.status !== 'complete' && task?.status !== 'failed' && (
               <div className="w-full rounded-xl aspect-video flex flex-col items-center justify-center gap-3
-                bg-white/5 border border-white/10">
-                <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin" />
-                <p className="text-xs text-white/40 animate-pulse-soft">Generating video…</p>
+                bg-gradient-to-br from-white/5 to-accent/5 border border-white/10 relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent animate-shimmer" />
+                <div className="w-10 h-10 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+                <p className="text-sm text-white/60 font-medium">Generating video…</p>
+                <p className="text-xs text-white/30">
+                  {isBackgroundLoading ? 'Auto-triggered • processing in background' : 'Please wait'}
+                </p>
               </div>
             )}
 

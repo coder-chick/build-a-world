@@ -10,19 +10,27 @@ import GTMKit from '@/components/gtm/GTMKit';
 import SocialLaunch from '@/components/gtm/SocialLaunch';
 import LoadingOverlay from '@/components/shared/LoadingOverlay';
 import Link from 'next/link';
-import { publishPost } from '@/services/twitterService';
+
+interface PostStatus {
+  posting: boolean;
+  posted: boolean;
+  tweetId?: string;
+  error?: string;
+}
 
 export default function GTMPage() {
-  const [world,   setWorld  ] = useState<ProductWorld | null>(null);
+  const [world, setWorld] = useState<ProductWorld | null>(null);
   const [loading, setLoading] = useState(true);
   const [posting, setPosting] = useState(false);
-  const [copied,  setCopied ] = useState<string | null>(null);
+  const [copied, setCopied] = useState<string | null>(null);
+  const [postStatuses, setPostStatuses] = useState<Record<number, PostStatus>>({});
+  const [selectedTweetId, setSelectedTweetId] = useState<string | undefined>();
 
   useEffect(() => {
     const raw = sessionStorage.getItem('baw_world');
     if (raw) {
       try { setWorld(JSON.parse(raw)); }
-      catch { /* malformed session data — stay null */ }
+      catch { /* malformed session data */ }
     }
     setLoading(false);
   }, []);
@@ -33,24 +41,93 @@ export default function GTMPage() {
     setTimeout(() => setCopied(null), 2000);
   };
 
-  const handleSelectPost = (post: string) => {
-    handleCopy(post);
+  const getVideoUrl = (): string => {
+    if (!world) return '';
+    const heroTask = world.videoSystem.videoTasks.find(
+      t => t.type === 'hero' && t.status === 'complete'
+    );
+    if (heroTask?.url) return heroTask.url;
+    const anyComplete = world.videoSystem.videoTasks.find(t => t.status === 'complete');
+    return anyComplete?.url || '';
+  };
+
+  const handleSelectPost = async (post: string, index: number) => {
+    if (!world) return;
+
+    setPostStatuses(prev => ({
+      ...prev,
+      [index]: { posting: true, posted: false },
+    }));
+
+    const videoUrl = getVideoUrl();
+    const tweetText = videoUrl
+      ? `${post}\n\n${videoUrl}`
+      : post;
+
+    // Ensure tweet stays under 280 chars (URLs count as 23 chars on X)
+    const finalText = tweetText.length > 280 ? post : tweetText;
+
+    try {
+      const res = await fetch('/api/twitter/post', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: finalText }),
+      });
+      const result = await res.json();
+
+      if (result.success) {
+        setPostStatuses(prev => ({
+          ...prev,
+          [index]: { posting: false, posted: true, tweetId: result.tweetId },
+        }));
+      } else {
+        setPostStatuses(prev => ({
+          ...prev,
+          [index]: { posting: false, posted: false, error: result.error || 'Post failed' },
+        }));
+      }
+    } catch (e) {
+      setPostStatuses(prev => ({
+        ...prev,
+        [index]: { posting: false, posted: false, error: 'Network error' },
+      }));
+    }
   };
 
   const handlePost = async () => {
     if (!world) return;
-    const posts = world.gtmKit.twitterPosts;
-    const text  = posts[0] ?? 'Check out my new product!';
+    const text = world.social.selectedPost || world.gtmKit.twitterPosts[0] || 'Check out my new product!';
     setPosting(true);
     try {
-      await publishPost(text);
-      // Mark as posted in social state
-      setWorld(prev => {
-        if (!prev) return prev;
-        const w = { ...prev, social: { ...prev.social, postedStatus: 'posted' as const } };
-        sessionStorage.setItem('baw_world', JSON.stringify(w));
-        return w;
+      const videoUrl = getVideoUrl();
+      const finalText = videoUrl ? `${text}\n\n${videoUrl}` : text;
+      const tweet = finalText.length > 280 ? text : finalText;
+
+      const res = await fetch('/api/twitter/post', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: tweet }),
       });
+      const result = await res.json();
+
+      if (result.success) {
+        setSelectedTweetId(result.tweetId);
+        setWorld(prev => {
+          if (!prev) return prev;
+          const w = {
+            ...prev,
+            social: {
+              ...prev.social,
+              postedStatus: 'posted' as const,
+              mockMetrics: result.metrics || prev.social.mockMetrics,
+            },
+          };
+          sessionStorage.setItem('baw_world', JSON.stringify(w));
+          return w;
+        });
+      }
+    } catch (e) {
+      console.error('[GTM] Post error:', e);
     } finally {
       setPosting(false);
     }
@@ -64,13 +141,13 @@ export default function GTMPage() {
         <>
           {/* Breadcrumb */}
           <div className="mb-6 flex items-center gap-2 text-xs" style={{ color: 'rgb(var(--color-fg-muted))' }}>
-            <Link href="/"        className="hover:text-fg transition-colors" style={{ color: 'inherit' }}>Home</Link>
+            <Link href="/" className="hover:text-fg transition-colors" style={{ color: 'inherit' }}>Home</Link>
             <span>/</span>
             <Link href="/builder" className="hover:text-fg transition-colors" style={{ color: 'inherit' }}>Builder</Link>
             <span>/</span>
             <span className="text-fg">GTM + Social</span>
             <div className="ml-auto flex gap-2">
-              <Link href="/video"        className="btn-ghost text-xs py-1.5 px-3">🎬 Videos</Link>
+              <Link href="/video" className="btn-ghost text-xs py-1.5 px-3">🎬 Videos</Link>
               <Link href="/architecture" className="btn-ghost text-xs py-1.5 px-3">🔭 Architecture</Link>
             </div>
           </div>
@@ -93,6 +170,7 @@ export default function GTMPage() {
               <h2 className="text-lg font-semibold text-fg mb-4">📋 GTM Kit</h2>
               <GTMKit
                 gtmKit={world.gtmKit}
+                postStatuses={postStatuses}
                 onSelectPost={handleSelectPost}
                 onCopy={handleCopy}
               />
@@ -104,6 +182,8 @@ export default function GTMPage() {
                 gtmKit={world.gtmKit}
                 social={world.social}
                 posting={posting}
+                videoUrl={getVideoUrl()}
+                tweetId={selectedTweetId}
                 onPost={handlePost}
               />
             </section>
@@ -113,4 +193,3 @@ export default function GTMPage() {
     </>
   );
 }
-

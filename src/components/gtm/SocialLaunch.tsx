@@ -1,7 +1,7 @@
 'use client';
 // ─────────────────────────────────────────────────────────────────────────────
 // OWNER: TEAM 3
-// SocialLaunch — A/B test winner display with score bars and mock metrics.
+// SocialLaunch — A/B test winner display with video preview and post action.
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { useEffect, useRef } from 'react';
@@ -12,6 +12,8 @@ interface Props {
   gtmKit: GTMKit;
   social: Social;
   posting: boolean;
+  videoUrl?: string;
+  tweetId?: string;
   onPost: () => void;
 }
 
@@ -50,7 +52,7 @@ function ScoreBar({ label, value, max = 10, color = '#6EE7F7' }: {
   );
 }
 
-export default function SocialLaunch({ gtmKit, social, posting, onPost }: Props) {
+export default function SocialLaunch({ gtmKit, social, posting, videoUrl, tweetId, onPost }: Props) {
   const { abTestingPlan } = gtmKit;
   const winner = social.abTestWinner;
 
@@ -99,47 +101,125 @@ export default function SocialLaunch({ gtmKit, social, posting, onPost }: Props)
         })}
       </div>
 
-      {/* ── Social Post + Mock Metrics ──────────────────────────────────────── */}
+      {/* ── Social Post + Video Preview ──────────────────────────────────────── */}
       <div className="flex flex-col gap-4">
         <p className="text-xs font-semibold uppercase tracking-widest text-white/40">
           Selected Post
         </p>
 
         {/* Post preview card styled like a tweet */}
-        <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
+        <div className={`
+          rounded-2xl border p-5 transition-all duration-300
+          ${social.postedStatus === 'posted'
+            ? 'border-green-500/40 bg-green-500/5'
+            : 'border-white/10 bg-white/5'}
+        `}>
           <div className="flex items-center gap-3 mb-3">
-            <div className="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center text-lg">🌡️</div>
+            <div className="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center text-lg">🌍</div>
             <div>
               <p className="text-sm font-semibold text-white">Build-A-World</p>
-              <p className="text-xs text-white/40">@buildaworld · just now</p>
+              <p className="text-xs text-white/40">@AI_mmunity · just now</p>
             </div>
+            {social.postedStatus === 'posted' && (
+              <span className="ml-auto text-xs px-2 py-0.5 rounded-full bg-green-500/20 text-green-400 font-medium">
+                Live
+              </span>
+            )}
           </div>
+
           <p className="text-sm text-white/80 leading-relaxed whitespace-pre-line mb-4">
             {social.selectedPost}
           </p>
-          <button
-            onClick={onPost}
-            disabled={posting || social.postedStatus === 'posted'}
-            className="
-              w-full py-2.5 rounded-xl text-sm font-semibold
-              bg-accent text-surface-dark
-              disabled:opacity-50 disabled:cursor-not-allowed
-              hover:scale-[1.02] active:scale-95
-              transition-all duration-200
-              shadow-neon
-            "
-          >
-            {posting          ? '⏳ Posting…'
-             : social.postedStatus === 'posted' ? '✓ Posted!'
-             : '𝕏 Post to Twitter / X'}
-          </button>
+
+          {/* Video preview */}
+          {videoUrl && (
+            <div className="mb-4 rounded-xl overflow-hidden border border-white/10">
+              <video
+                src={videoUrl}
+                className="w-full aspect-video object-cover"
+                muted
+                autoPlay
+                loop
+                playsInline
+              />
+              <div className="px-3 py-2 bg-white/5 flex items-center gap-2">
+                <span className="text-[10px] text-white/40">🎬 Hero Video Attached</span>
+                <span className="text-[10px] text-white/30 ml-auto truncate max-w-[200px]">{videoUrl.split('/').pop()}</span>
+              </div>
+            </div>
+          )}
+
+          {/* Post button or posted state */}
+          {social.postedStatus === 'posted' && tweetId ? (
+            <a
+              href={tweetId.startsWith('mock-')
+                ? '#'
+                : `https://x.com/i/status/${tweetId}`}
+              target={tweetId.startsWith('mock-') ? undefined : '_blank'}
+              rel="noopener noreferrer"
+              className="
+                block w-full py-2.5 rounded-xl text-sm font-semibold text-center
+                bg-green-500/20 text-green-400 border border-green-500/30
+                hover:bg-green-500/30
+                transition-all duration-200
+              "
+            >
+              {tweetId.startsWith('mock-')
+                ? '✓ Posted (demo mode)'
+                : `✓ Posted — View on 𝕏 ↗`}
+            </a>
+          ) : (
+            <button
+              onClick={onPost}
+              disabled={posting || social.postedStatus === 'posted'}
+              className="
+                w-full py-2.5 rounded-xl text-sm font-semibold
+                bg-accent text-surface-dark
+                disabled:opacity-50 disabled:cursor-not-allowed
+                hover:scale-[1.02] active:scale-95
+                transition-all duration-200
+                shadow-neon
+              "
+            >
+              {posting
+                ? '⏳ Posting with video…'
+                : social.postedStatus === 'posted'
+                  ? '✓ Posted!'
+                  : videoUrl
+                    ? '𝕏 Post to X with Video'
+                    : '𝕏 Post to Twitter / X'}
+            </button>
+          )}
         </div>
 
-        {/* Mock metrics */}
+        {/* Tweet link */}
+        {social.postedStatus === 'posted' && tweetId && !tweetId.startsWith('mock-') && (
+          <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 flex items-center gap-3">
+            <span className="text-white/40 text-sm">🔗</span>
+            <a
+              href={`https://x.com/i/status/${tweetId}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm text-accent hover:underline truncate"
+            >
+              https://x.com/i/status/{tweetId}
+            </a>
+            <button
+              onClick={() => {
+                navigator.clipboard.writeText(`https://x.com/i/status/${tweetId}`);
+              }}
+              className="ml-auto text-xs text-white/40 hover:text-white/70 transition-colors shrink-0"
+            >
+              📋 Copy
+            </button>
+          </div>
+        )}
+
+        {/* Engagement metrics after posting */}
         {social.postedStatus === 'posted' && (
           <div className="rounded-2xl border border-green-500/20 bg-green-500/5 p-5">
             <p className="text-xs font-semibold uppercase tracking-widest text-green-400/60 mb-3">
-              Mock Engagement
+              Engagement Metrics
             </p>
             <div className="grid grid-cols-3 gap-3">
               {[

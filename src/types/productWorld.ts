@@ -38,12 +38,18 @@ export interface ProductStyle {
 
 export type VisualizationView = 'product' | 'knolling' | 'exploded';
 
+export type ImageGenStatus = 'idle' | 'generating' | 'complete' | 'failed';
+
 export interface VisualSystem {
   currentView: VisualizationView;
   productViewPrompt: string;
   knollingViewPrompt: string;
   explodedViewPrompt: string;
   componentPrompts: string[];
+  productViewImageUrl?: string;
+  knollingViewImageUrl?: string;
+  explodedViewImageUrl?: string;
+  imageGenStatus?: ImageGenStatus;
 }
 
 export type VideoType = 'hero' | 'action' | 'artistic' | 'animated';

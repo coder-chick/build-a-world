@@ -12,12 +12,13 @@ const STEPS = [
   'Analysing product idea…',
   'Running Product Strategy Agent…',
   'Generating customization options…',
-  'Creating 9 style directions…',
-  'Building visual prompts…',
-  'Crafting video prompts…',
+  'Creating style directions…',
+  'Building visual & video prompts…',
+  'Generating product image…',
+  'Creating knolling & exploded views…',
   'Assembling GTM kit…',
   'Finalising social launch…',
-  'Saving to Butterbase…',
+  'Saving your world…',
 ];
 
 interface Props {

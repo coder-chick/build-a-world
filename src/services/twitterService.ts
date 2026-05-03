@@ -129,9 +129,15 @@ export async function publishPost(
 ): Promise<TwitterPostResult | MockTweetResult> {
   if (MOCK_MODE) return mockPostToTwitter(text);
 
+  const hasAccessToken = process.env.TWITTER_ACCESS_TOKEN && process.env.TWITTER_ACCESS_SECRET;
+  if (!hasAccessToken) {
+    console.warn('[twitterService] No access token/secret — using mock');
+    return mockPostToTwitter(text);
+  }
+
   const result = await postToTwitter(text);
   if (!result.success) {
-    console.warn('[twitterService] Real post failed — returning mock result');
+    console.warn('[twitterService] Real post failed — returning mock result:', result.error);
     return mockPostToTwitter(text);
   }
   return result;

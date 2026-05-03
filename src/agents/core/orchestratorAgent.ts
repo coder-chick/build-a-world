@@ -1,12 +1,16 @@
+'use server';
 // ─────────────────────────────────────────────────────────────────────────────
 // OWNER: TEAM 1
 // OrchestratorAgent — coordinates all agents and assembles the ProductWorld.
 // Exposes a single function: generateProductWorld(userPrompt)
+// Marked 'use server' so exported functions run as Next.js server actions
+// (required because agents access server-only env vars / API keys).
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { v4 as uuidv4 } from 'uuid';
 import { ProductWorld } from '@/types/productWorld';
 import { saveProductWorld } from '@/services/butterbaseService';
+import { generateImage } from '@/services/imaRouterService';
 
 import { runProductStrategyAgent }  from './productStrategyAgent';
 import { runCustomizationAgent }    from './customizationAgent';
@@ -47,10 +51,40 @@ export async function generateProductWorld(
   }
 
   // ── Step 3: Visual + Video prompts (can run in parallel) ──────────────────
-  const [visualSystem, videoSystem] = await Promise.all([
+  const [visualSystemBase, videoSystem] = await Promise.all([
     runVisualPromptAgent(productOverview, selectedStyle),
     runVideoPromptAgent(productOverview, selectedStyle),
   ]);
+
+  // ── Step 3b: Generate base product image first (high quality) ────────────
+  const productViewImageUrl = await generateImage(
+    visualSystemBase.productViewPrompt,
+    { model: 'gemini-3-pro-image-preview', aspectRatio: '1:1', size: '1K' }
+  );
+
+  // ── Step 3c: Generate knolling + exploded using base image as reference ──
+  const [knollingViewImageUrl, explodedViewImageUrl] = await Promise.all([
+    generateImage(visualSystemBase.knollingViewPrompt, {
+      model: 'gemini-3.1-flash-image-preview',
+      aspectRatio: '1:1',
+      size: '1K',
+      referenceImageUrl: productViewImageUrl ?? undefined,
+    }),
+    generateImage(visualSystemBase.explodedViewPrompt, {
+      model: 'gemini-3.1-flash-image-preview',
+      aspectRatio: '1:1',
+      size: '1K',
+      referenceImageUrl: productViewImageUrl ?? undefined,
+    }),
+  ]);
+
+  const visualSystem = {
+    ...visualSystemBase,
+    productViewImageUrl: productViewImageUrl ?? '',
+    knollingViewImageUrl: knollingViewImageUrl ?? '',
+    explodedViewImageUrl: explodedViewImageUrl ?? '',
+    imageGenStatus: 'complete' as const,
+  };
 
   // ── Step 4: GTM Kit ────────────────────────────────────────────────────────
   const gtmKit = await runGTMAgent(productOverview);
@@ -75,8 +109,8 @@ export async function generateProductWorld(
     social,
   };
 
-  // ── Persist to Butterbase ──────────────────────────────────────────────────
-  await saveProductWorld(productWorld);
+  // Fire-and-forget Butterbase save (don't block the response)
+  saveProductWorld(productWorld).catch(() => {});
 
   return productWorld;
 }
@@ -93,19 +127,49 @@ export async function regenerateVisuals(
   const selectedStyle     = newStyle      ?? productWorld.selectedStyle;
   const selectedComponents = newComponents ?? productWorld.selectedComponents;
 
-  const [visualSystem, videoSystem] = await Promise.all([
+  const [visualSystemBase, videoSystem] = await Promise.all([
     runVisualPromptAgent(productWorld.productOverview, selectedStyle),
     runVideoPromptAgent(productWorld.productOverview, selectedStyle),
   ]);
+
+  // Regenerate: product image first, then knolling + exploded using it as reference
+  const productViewImageUrl = await generateImage(
+    visualSystemBase.productViewPrompt,
+    { model: 'gemini-3.1-flash-image-preview', aspectRatio: '1:1', size: '1K' }
+  );
+
+  const [knollingViewImageUrl, explodedViewImageUrl] = await Promise.all([
+    generateImage(visualSystemBase.knollingViewPrompt, {
+      model: 'gemini-3.1-flash-image-preview',
+      aspectRatio: '1:1',
+      size: '1K',
+      referenceImageUrl: productViewImageUrl ?? undefined,
+    }),
+    generateImage(visualSystemBase.explodedViewPrompt, {
+      model: 'gemini-3.1-flash-image-preview',
+      aspectRatio: '1:1',
+      size: '1K',
+      referenceImageUrl: productViewImageUrl ?? undefined,
+    }),
+  ]);
+
+  const visualSystem = {
+    ...visualSystemBase,
+    currentView: productWorld.visualSystem.currentView,
+    productViewImageUrl: productViewImageUrl ?? '',
+    knollingViewImageUrl: knollingViewImageUrl ?? '',
+    explodedViewImageUrl: explodedViewImageUrl ?? '',
+    imageGenStatus: 'complete' as const,
+  };
 
   const updated: ProductWorld = {
     ...productWorld,
     selectedStyle,
     selectedComponents,
-    visualSystem:  { ...visualSystem, currentView: productWorld.visualSystem.currentView },
-    videoSystem:   { ...videoSystem, videoTasks: productWorld.videoSystem.videoTasks },
+    visualSystem,
+    videoSystem: { ...videoSystem, videoTasks: productWorld.videoSystem.videoTasks },
   };
 
-  await saveProductWorld(updated);
+  saveProductWorld(updated).catch(() => {});
   return updated;
 }

@@ -77,8 +77,8 @@ export async function createVideoTask(
   prompt: string,
   imageUrl?: string
 ): Promise<{ taskId: string }> {
-  const key = process.env.SEEDANCE_API_KEY;
-  if (!key) throw new Error('SEEDANCE_API_KEY not set');
+  const key = process.env.SEEDANCE_API_KEY5;
+  if (!key) throw new Error('SEEDANCE_API_KEY5 not set');
 
   const content: Array<Record<string, unknown>> = [
     {
@@ -120,8 +120,8 @@ export async function createVideoTask(
 }
 
 export async function pollVideoTask(taskId: string): Promise<SeedanceTaskResponse> {
-  const key = process.env.SEEDANCE_API_KEY;
-  if (!key) throw new Error('SEEDANCE_API_KEY not set');
+  const key = process.env.SEEDANCE_API_KEY5;
+  if (!key) throw new Error('SEEDANCE_API_KEY5 not set');
 
   const res = await fetch(`${SEEDANCE_BASE}/${taskId}`, {
     headers: { Authorization: `Bearer ${key}` },

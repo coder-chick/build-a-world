@@ -23,10 +23,24 @@ export async function runVideoPromptAgent(
     VIDEO_PROMPT_USER(overview.productName, selectedStyle)
   );
 
-  if (raw === '__MOCK__') throw new Error('[VideoPromptAgent] LLM call failed — no API key available');
+  const fallback: VideoPromptOutput = {
+    heroVideoPrompt: `Cinematic hero reveal of a futuristic running sneaker — dark grey nanofiber knit upper with neon-blue LED midsole accents — rising from smoke on a reflective black platform, dramatic volumetric lighting, slow 180-degree camera orbit, ${selectedStyle} aesthetic, 30 seconds`,
+    actionVideoPrompt: `A runner wearing futuristic neon-accented sneakers sprinting through rain-soaked city streets at night, puddle splashes catching LED glow from the shoes, dynamic low-angle tracking shot, cinematic depth of field, urban environment, 30 seconds`,
+    artisticVideoPrompt: `Abstract artistic close-up of a futuristic sneaker dissolving into particles of light and re-forming, neon-blue and electric-purple colour palette, moody fog, slow-motion macro details of knit texture and sole cushioning, ${selectedStyle} aesthetic, 30 seconds`,
+    animatedVideoPrompt: `Motion-graphics product showcase of a futuristic running sneaker: exploded-view animation assembling each component (outsole, midsole foam, knit upper, laces, LED strip) in sequence, floating on a clean dark background, smooth easing transitions, 30 seconds`,
+    simulated3DTurnaroundPrompt: `Smooth 360-degree turnaround of a futuristic running sneaker on a rotating pedestal, studio lighting with soft rim light, dark background, showing all angles of the nanofiber upper, translucent sole, and LED accents, seamless loop, 30 seconds`,
+  };
+
+  if (raw === '__MOCK__') {
+    console.warn('[VideoPromptAgent] Using fallback prompts');
+    return { ...fallback, videoTasks: [] };
+  }
 
   const parsed = parseJSON<VideoPromptOutput>(raw);
-  if (!parsed) throw new Error('[VideoPromptAgent] Failed to parse LLM response');
+  if (!parsed) {
+    console.warn('[VideoPromptAgent] Parse failed, using fallback');
+    return { ...fallback, videoTasks: [] };
+  }
 
   return {
     heroVideoPrompt:              parsed.heroVideoPrompt,

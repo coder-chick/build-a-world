@@ -70,8 +70,9 @@ Return ONLY valid JSON:
 
 export const VISUAL_PROMPT_SYSTEM = `You are an AI art director and product photographer.
 Generate detailed image generation prompts for three product visualisation modes.
-Each prompt must be specific enough to produce a commercial-quality render.
-Crucially, ALWAYS refer to the subject in your prompts as "the product in the provided image". Do not invent product names or specific features that might conflict with the provided image.`;
+Each prompt MUST physically describe the product in vivid detail — its shape, materials, colours, textures, and form factor.
+The prompts will be used with a text-to-image AI model that has NO prior context, so you must paint a complete visual picture of the product in every prompt.
+Never use phrases like "the product" or "the item" — instead describe exactly what the object looks like.`;
 
 export const VISUAL_PROMPT_USER = (
   productName: string,
@@ -79,14 +80,16 @@ export const VISUAL_PROMPT_USER = (
   overview: string
 ) => `
 Product: ${productName}
-Style: ${style}
-Overview: ${overview}
+Style direction: ${style}
+Product description: ${overview}
+
+Generate 3 image prompts. Each prompt MUST start with a vivid physical description of the product (e.g. "A sleek futuristic running sneaker with knit upper, neon accents, and a thick responsive foam midsole...").
 
 Return ONLY valid JSON:
 {
-  "productViewPrompt": "...",
-  "knollingViewPrompt": "...",
-  "explodedViewPrompt": "...",
+  "productViewPrompt": "Detailed prompt for a hero product photograph, studio-lit, white or contextual background...",
+  "knollingViewPrompt": "Detailed prompt for a top-down knolling layout showing all components neatly arranged...",
+  "explodedViewPrompt": "Detailed prompt for an exploded-view technical diagram showing internal parts floating apart...",
   "componentPrompts": ["...", "...", "..."]
 }`;
 
@@ -96,7 +99,8 @@ export const VIDEO_PROMPT_SYSTEM = `You are a Seedance AI video director.
 Generate cinematic, highly specific video prompts optimised for Seedance 2.0 text-to-video.
 Ensure the hero video ALWAYS places the product in a minimalist studio room.
 Ensure the action video takes the object and puts it in a realistic context.
-Crucially, ALWAYS refer to the subject in your prompts as "the product in the provided image". Do not invent product names or specific features that might conflict with the provided image.
+Each prompt MUST physically describe the product in vivid detail — its shape, materials, colours, textures, and form factor. The prompts will be used with a video model that has NO prior context, so you must paint a complete visual picture of the product in every prompt.
+Never use phrases like "the product" or "the item" — instead describe exactly what the object looks like.
 Each prompt must include: scene, environment, lighting, camera movement, motion, product interaction, emotional tone, duration, loop instruction.`;
 
 export const VIDEO_PROMPT_USER = (productName: string, style: string) => `

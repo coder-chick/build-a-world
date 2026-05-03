@@ -29,10 +29,22 @@ export async function runSocialAgent(gtmKit: GTMKit): Promise<Social> {
     SOCIAL_USER(gtmKit.twitterPosts, aTotal, bTotal)
   );
 
-  if (raw === '__MOCK__') throw new Error('[SocialAgent] LLM call failed — no API key available');
+  const fallbackSocial: SocialOutput = {
+    selectedPost: gtmKit.twitterPosts[0] ?? 'The future of running just dropped. Adaptive cushioning, neon LED accents, and nanofiber knit — this sneaker reads the streets beneath your feet. 🚀',
+    abTestWinner: bTotal > aTotal ? 'B' : 'A',
+    mockMetrics: { impressions: 24800, likes: 1890, reposts: 534, replies: 167, clickIntent: 4.5, shareabilityScore: 4.3 },
+  };
+
+  if (raw === '__MOCK__') {
+    console.warn('[SocialAgent] Using fallback');
+    return { selectedPost: fallbackSocial.selectedPost, postedStatus: 'idle' as const, mockMetrics: fallbackSocial.mockMetrics, abTestWinner: fallbackSocial.abTestWinner };
+  }
 
   const parsed = parseJSON<SocialOutput>(raw);
-  if (!parsed) throw new Error('[SocialAgent] Failed to parse LLM response');
+  if (!parsed) {
+    console.warn('[SocialAgent] Parse failed, using fallback');
+    return { selectedPost: fallbackSocial.selectedPost, postedStatus: 'idle' as const, mockMetrics: fallbackSocial.mockMetrics, abTestWinner: fallbackSocial.abTestWinner };
+  }
 
   const defaultMetrics: Social['mockMetrics'] = { impressions: 0, likes: 0, reposts: 0, replies: 0, clickIntent: 0, shareabilityScore: 0 };
   return {
